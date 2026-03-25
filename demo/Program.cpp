@@ -10,7 +10,7 @@
 #include "raymath.h"
 
 Program::Program()
-	:running(true)
+	:running(true), engine()
 {
 	Init();
 	renderer.Init();
@@ -34,14 +34,18 @@ void Program::Init()
 
 void Program::InitScene()
 {
-	Model cubeModel = LoadModelFromMesh(GenMeshCube(2.0f, 2.0f, 2.0f));
-	Model planeModel = LoadModelFromMesh(GenMeshPlane(100.0f, 100.0f, 1, 1));
+	engine.world.Initialize();
 
-	RenderModel cube{ cubeModel,  BLUE,  Vector3{ 0.0f, 1.0f, 0.0f } };
-	RenderModel plane{ planeModel, WHITE, Vector3Zero() };
+	renderer.sceneObjects.reserve(engine.world.bodies.size());
 
-	renderer.AddSceneObject(cube);
-	renderer.AddSceneObject(plane);
+	for (int i = 0; i < engine.world.bodies.size(); i++) 
+	{
+		RenderModel* sceneObject = RenderModel::BuildFromShape(engine.world.bodies[i], engine.world.bodies[i].shape);
+		renderer.AddSceneObject(sceneObject);
+	}
+
+
+
 }
 
 void Program::Update()
@@ -57,6 +61,9 @@ void Program::Update()
 
 void Program::Destroy()
 {
-
+	for (RenderModel* obj : renderer.sceneObjects)
+	{
+		delete obj;
+	}
 	CloseWindow();
 }

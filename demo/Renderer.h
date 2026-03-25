@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include "Cam.h"
 #include <string>
+#include "Physics/ShapeBase.h"
+#include "Physics/Body.h"
 
 #define SHADOWMAP_RESOLUTION 2048
 
@@ -16,10 +18,11 @@ class RenderModel
 public:
 	Model model;
 	Color color;
-	// TODO: void BuildFromShape(chai3d::Shape* shape);
+	static RenderModel* BuildFromShape(Cacti::Body body,Cacti::Shape* shape);
 
 	Vector3 position;
 
+	RenderModel() = default;
 	RenderModel(Model& model, Color color, Vector3 pos);
 	void Draw();
 };
@@ -34,7 +37,10 @@ public:
 	void Update();
 	void Destroy();
 
-	void AddSceneObject(RenderModel& obj);
+	void AddSceneObject(RenderModel* obj);
+
+	std::vector<RenderModel* > sceneObjects;
+
 
 private:
 
@@ -54,7 +60,6 @@ private:
 	RenderTexture2D shadowMap;
 	int textureActiveSlot = 10;
 
-	std::vector<RenderModel> sceneObjects;
 	Cam cam;
 	Shader shader;
 

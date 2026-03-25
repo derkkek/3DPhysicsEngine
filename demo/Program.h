@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 #include "Renderer.h"
+#include <Engine.h>
 
 class Program
 {
@@ -20,7 +21,7 @@ private:
 	
 	//chai2d::Engine engine;
 	Renderer renderer;
-
+	Cacti::Engine engine;
 	bool running;
 
 };

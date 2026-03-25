@@ -8,7 +8,7 @@
 #else   // PLATFORM_ANDROID, PLATFORM_WEB
 #define GLSL_VERSION            100
 #endif
-
+#include <random> 
 Renderer::Renderer()
 	:cam(),shader(),shadowShader()
 {
@@ -226,9 +226,9 @@ void Renderer::Update()
 	lightProj = rlGetMatrixProjection();
 	
 	rlSetCullFace(RL_CULL_FACE_FRONT);
-	for (RenderModel& obj : sceneObjects)
+	for (RenderModel* obj : sceneObjects)
 	{
-		obj.Draw();
+		obj->Draw();
 	}
 	rlSetCullFace(RL_CULL_FACE_BACK);   // restore
 
@@ -260,9 +260,9 @@ void Renderer::Update()
 	rlEnableBackfaceCulling();
 	rlEnableDepthMask();
 
-	for (RenderModel& obj : sceneObjects)
+	for (RenderModel* obj : sceneObjects)
 	{
-		obj.Draw();
+		obj->Draw();
 	}
 
 	EndMode3D();
@@ -272,8 +272,8 @@ void Renderer::Update()
 
 void Renderer::Destroy()
 {
-	for (RenderModel& obj : sceneObjects)
-		UnloadModel(obj.model);
+	for (RenderModel* obj : sceneObjects)
+		UnloadModel(obj->model);
 
 	UnloadShader(shadowShader);
 	UnloadShadowmapRenderTexture(shadowMap);
@@ -282,10 +282,41 @@ void Renderer::Destroy()
 	UnloadModel(skyboxModel);
 }
 
-void Renderer::AddSceneObject(RenderModel& obj)
+void Renderer::AddSceneObject(RenderModel* obj)
 {
-	obj.model.materials[0].shader = shadowShader;
+	obj->model.materials[0].shader = shadowShader;
 	sceneObjects.emplace_back(obj);
+}
+
+RenderModel* RenderModel::BuildFromShape(Cacti::Body body, Cacti::Shape* shape)
+{
+	if (shape->GetType() == Cacti::Shape::ShapeType::SPHERE)
+	{
+		Cacti::Sphere* sphereShape = (Cacti::Sphere*)shape;
+		Model sphere = LoadModelFromMesh(GenMeshSphere(sphereShape->radius, 50, 50));
+		Vector3 raylibPos = { body.position.x, body.position.y, body.position.z };
+
+		static const Color colorList[] = {
+	   LIGHTGRAY, GRAY, DARKGRAY, YELLOW, GOLD, ORANGE, PINK, RED, MAROON,
+	   GREEN, LIME, DARKGREEN, SKYBLUE, BLUE, DARKBLUE, PURPLE, VIOLET,
+	   DARKPURPLE, BEIGE, BROWN, DARKBROWN, WHITE, BLACK, MAGENTA, RAYWHITE
+		};
+		static const size_t colorCount = sizeof(colorList) / sizeof(colorList[0]);
+
+		// Use a static random engine and distribution
+		static std::random_device rd;
+		static std::mt19937 gen(rd());
+		static std::uniform_int_distribution<size_t> dist(0, colorCount - 1);
+
+		Color randomColor = colorList[dist(gen)];
+
+		RenderModel* sphereObj = new RenderModel{ sphere, randomColor, raylibPos };
+
+
+		return sphereObj;
+	}
+
+	return new RenderModel();
 }
 
 RenderModel::RenderModel(Model& model, Color color, Vector3 pos)
