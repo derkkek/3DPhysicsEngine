@@ -26,8 +26,6 @@ void Program::Init()
 
 	InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
-	SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
-
 	DisableCursor();
 
 }
@@ -53,7 +51,11 @@ void Program::Update()
 	while (!WindowShouldClose())
 	{
 		float dt = GetFrameTime();
-
+		engine.world.Update(dt);
+		for (int i = 0; i < renderer.sceneObjects.size(); i++)
+		{
+			renderer.UpdateRenderModelData(engine.world.bodies[i], i);
+		}
 		renderer.Update();
 	}
 }

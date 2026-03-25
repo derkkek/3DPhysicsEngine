@@ -38,6 +38,7 @@ public:
 	void Destroy();
 
 	void AddSceneObject(RenderModel* obj);
+	void UpdateRenderModelData(Cacti::Body& body, int index);
 
 	std::vector<RenderModel* > sceneObjects;
 

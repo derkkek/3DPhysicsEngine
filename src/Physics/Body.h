@@ -7,9 +7,16 @@ namespace Cacti
 	class Body
 	{
 	public:
-		Body() = default;
+		Body();
 		~Body() = default;
 
+		Vec3 GetCenterOfMassWorldSpace() const;
+		Vec3 GetCenterOfMassModelSpace() const;
+
+		Vec3 WorldSpaceToBodySpace(const Vec3& p) const;
+		Vec3 BodySpaceToWorldSpace(const Vec3& p) const;
+
+		Vec3 linearVelocity;
 		Vec3 position;
 		Quat orientation;
 		Shape* shape;

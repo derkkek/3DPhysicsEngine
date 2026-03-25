@@ -1,4 +1,5 @@
 #include "World.h"
+#include <iostream>
 namespace Cacti
 {
 	World::World()
@@ -24,8 +25,17 @@ namespace Cacti
 		bodies.push_back(body);
 	}
 
-	void World::Update(const float dt_sec)
+	void World::Update(const float dt)
 	{
+		for (int i = 0; i < bodies.size(); i++)
+		{
+			bodies[i].linearVelocity += Vec3(0, -10, 0) * dt;
+		}
+
+		for (int i = 0; i < bodies.size(); i++)
+		{
+			bodies[i].position += bodies[i].linearVelocity * dt;
+		}
 	}
 
 }

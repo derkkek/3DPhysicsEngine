@@ -1,4 +1,5 @@
 #pragma once
+#include "Math/Vector.h"
 namespace Cacti
 {
 	class Shape
@@ -13,14 +14,23 @@ namespace Cacti
 
 		virtual ShapeType GetType() const = 0;
 
-	private:
+		virtual Vec3 GetCenterOfMass() const
+		{
+			return centerOfMass;
+		}
 
+	protected:
+		Vec3 centerOfMass;
 	};
 
 	class Sphere : public Shape
 	{
 	public:
-		Sphere(float radius) : radius(radius){}
+		Sphere(float radius) 
+			: radius(radius)
+		{
+			centerOfMass.Zero();
+		}
 		~Sphere() = default;
 
 		ShapeType GetType() const override

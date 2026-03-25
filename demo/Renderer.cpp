@@ -288,6 +288,12 @@ void Renderer::AddSceneObject(RenderModel* obj)
 	sceneObjects.emplace_back(obj);
 }
 
+void Renderer::UpdateRenderModelData(Cacti::Body& body, int index)
+{
+	Vector3 raylibPos = { body.position.x, body.position.y, body.position.z };
+	sceneObjects[index]->position = raylibPos;
+}
+
 RenderModel* RenderModel::BuildFromShape(Cacti::Body body, Cacti::Shape* shape)
 {
 	if (shape->GetType() == Cacti::Shape::ShapeType::SPHERE)
@@ -303,7 +309,6 @@ RenderModel* RenderModel::BuildFromShape(Cacti::Body body, Cacti::Shape* shape)
 		};
 		static const size_t colorCount = sizeof(colorList) / sizeof(colorList[0]);
 
-		// Use a static random engine and distribution
 		static std::random_device rd;
 		static std::mt19937 gen(rd());
 		static std::uniform_int_distribution<size_t> dist(0, colorCount - 1);

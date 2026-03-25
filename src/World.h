@@ -14,7 +14,7 @@ namespace Cacti
 
 		void Reset();
 		void Initialize();
-		void Update(const float dt_sec);
+		void Update(const float dt);
 
 		std::vector<Body> bodies;
 
