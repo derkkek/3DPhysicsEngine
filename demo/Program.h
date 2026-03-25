@@ -14,7 +14,7 @@ public:
 
 	void Update();
 	void Destroy();
-
+	void InitScene();
 private:
 	void Init();
 	

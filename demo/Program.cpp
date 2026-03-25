@@ -14,6 +14,7 @@ Program::Program()
 {
 	Init();
 	renderer.Init();
+	InitScene();
 }
 
 void Program::Init()
@@ -29,6 +30,18 @@ void Program::Init()
 
 	DisableCursor();
 
+}
+
+void Program::InitScene()
+{
+	Model cubeModel = LoadModelFromMesh(GenMeshCube(2.0f, 2.0f, 2.0f));
+	Model planeModel = LoadModelFromMesh(GenMeshPlane(100.0f, 100.0f, 1, 1));
+
+	RenderModel cube{ cubeModel,  BLUE,  Vector3{ 0.0f, 1.0f, 0.0f } };
+	RenderModel plane{ planeModel, WHITE, Vector3Zero() };
+
+	renderer.AddSceneObject(cube);
+	renderer.AddSceneObject(plane);
 }
 
 void Program::Update()

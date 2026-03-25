@@ -9,6 +9,8 @@
 #include "Cam.h"
 #include <string>
 
+#define SHADOWMAP_RESOLUTION 2048
+
 class RenderModel
 {
 public:
@@ -16,7 +18,9 @@ public:
 	Color color;
 	// TODO: void BuildFromShape(chai3d::Shape* shape);
 
-	RenderModel(Model& model, Color color);
+	Vector3 position;
+
+	RenderModel(Model& model, Color color, Vector3 pos);
 	void Draw();
 };
 
@@ -30,17 +34,32 @@ public:
 	void Update();
 	void Destroy();
 
+	void AddSceneObject(RenderModel& obj);
+
 private:
+
+
 	TextureCubemap GenTextureCubemap(Shader shader, Texture2D panorama, int size, int format);
+
+	RenderTexture2D LoadShadowmapRenderTexture(int width, int height);
+	void UnloadShadowmapRenderTexture(RenderTexture2D target);
+
+	Shader shadowShader;
+	int lightVPLoc;
+	int shadowMapLoc;
+
+	Vector3 lightDir;
+	int lightDirLoc;
+
+	RenderTexture2D shadowMap;
+	int textureActiveSlot = 10;
 
 	std::vector<RenderModel> sceneObjects;
 	Cam cam;
 	Shader shader;
-	std::vector<Light> lights;
 
 	Model skyboxModel;
 	Shader skyboxShader;
 
-	//std::unordered_map<std::string, Texture2D> textures;
 
 };

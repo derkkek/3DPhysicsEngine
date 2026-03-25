@@ -10,7 +10,7 @@
 #endif
 
 Renderer::Renderer()
-	:cam(),shader()
+	:cam(),shader(),shadowShader()
 {
 }
 
@@ -103,121 +103,198 @@ TextureCubemap Renderer::GenTextureCubemap(Shader shader, Texture2D panorama, in
 	return cubemap;
 }
 
+RenderTexture2D Renderer::LoadShadowmapRenderTexture(int width, int height)
+{
+	RenderTexture2D target = { 0 };
+	target.id = rlLoadFramebuffer(width, height);
+	target.texture.width = width;
+	target.texture.height = height;
+
+	if (target.id > 0)
+	{
+		rlEnableFramebuffer(target.id);
+		target.depth.id = rlLoadTextureDepth(width, height, false);
+		target.depth.width = width;
+		target.depth.height = height;
+		target.depth.format = 19;
+		target.depth.mipmaps = 1;
+		rlFramebufferAttach(target.id, target.depth.id, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_TEXTURE2D, 0);
+		if (rlFramebufferComplete(target.id))
+			TraceLog(LOG_INFO, "FBO: [ID %i] Shadowmap framebuffer created successfully", target.id);
+		rlDisableFramebuffer();
+	}
+	return target;
+}
+
+void Renderer::UnloadShadowmapRenderTexture(RenderTexture2D target)
+{
+	if (target.id > 0)
+		rlUnloadFramebuffer(target.id);
+}
+
 void Renderer::Init()
 {
-	shader = LoadShader(TextFormat("resources/shaders/glsl%i/lighting.vs", GLSL_VERSION),
-		TextFormat("resources/shaders/glsl%i/lighting.fs", GLSL_VERSION));
+	// --- Shadow shader ---
+	shadowShader = LoadShader(
+		TextFormat("resources/shaders/glsl%i/shadowmap.vs", GLSL_VERSION),
+		TextFormat("resources/shaders/glsl%i/shadowmap.fs", GLSL_VERSION));
 
-	shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
+	shadowShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shadowShader, "viewPos");
 
-	int ambientLoc = GetShaderLocation(shader, "ambient");
+	lightDir = Vector3Normalize({ 0.45f, -1.0f, -0.45f });
+	Color lightColor = WHITE;
+	Vector4 lightColorNorm = ColorNormalize(lightColor);
+
+	lightDirLoc = GetShaderLocation(shadowShader, "lightDir");
+	lightVPLoc = GetShaderLocation(shadowShader, "lightVP");
+	shadowMapLoc = GetShaderLocation(shadowShader, "shadowMap");
+
+	SetShaderValue(shadowShader, lightDirLoc, &lightDir, SHADER_UNIFORM_VEC3);
+	SetShaderValue(shadowShader, GetShaderLocation(shadowShader, "lightColor"),
+		&lightColorNorm, SHADER_UNIFORM_VEC4);
+
 	float ambient[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
-	SetShaderValue(shader, ambientLoc, ambient, SHADER_UNIFORM_VEC4);
+	SetShaderValue(shadowShader, GetShaderLocation(shadowShader, "ambient"),
+		ambient, SHADER_UNIFORM_VEC4);
 
-	// Create lights ONCE here, not in Draw()
-	lights.emplace_back(CreateLight(LIGHT_POINT, { -2, 10, -2 }, Vector3Zero(), WHITE, shader));
+	int shadowMapRes = SHADOWMAP_RESOLUTION;
+	SetShaderValue(shadowShader, GetShaderLocation(shadowShader, "shadowMapResolution"),
+		&shadowMapRes, SHADER_UNIFORM_INT);
 
+	// --- Shadow map FBO ---
+	shadowMap = LoadShadowmapRenderTexture(SHADOWMAP_RESOLUTION, SHADOWMAP_RESOLUTION);
 
-	Model cubeModel = LoadModelFromMesh(GenMeshCube(2.0f, 4.0f, 2.0f));
-	Model planeModel = LoadModelFromMesh(GenMeshPlane(1000.0f, 1000.0f, 1, 1));
-
-	cubeModel.materials[0].shader = shader;
-	planeModel.materials[0].shader = shader;
-	
-	RenderModel cube(cubeModel, BLUE);
-	RenderModel plane(planeModel, WHITE);
-
-
-	sceneObjects.emplace_back(cube);
-	sceneObjects.emplace_back(plane);
-
-	Mesh skyboxMesh = GenMeshCube(1.0f, 1.0f, 1.0f);
-	skyboxModel = LoadModelFromMesh(skyboxMesh);
-
-	// Load the skybox display shader
+	// --- Skybox ---
+	skyboxModel = LoadModelFromMesh(GenMeshCube(1.0f, 1.0f, 1.0f));
 	skyboxModel.materials[0].shader = LoadShader(
 		TextFormat("resources/shaders/glsl%i/skybox.vs", GLSL_VERSION),
 		TextFormat("resources/shaders/glsl%i/skybox.fs", GLSL_VERSION));
 
-	// Tell the skybox shader which texture slot is the cubemap
 	int envMap = MATERIAL_MAP_CUBEMAP;
 	SetShaderValue(skyboxModel.materials[0].shader,
 		GetShaderLocation(skyboxModel.materials[0].shader, "environmentMap"),
 		&envMap, SHADER_UNIFORM_INT);
+	int doGamma = 0, vflipped = 0;
+	SetShaderValue(skyboxModel.materials[0].shader,
+		GetShaderLocation(skyboxModel.materials[0].shader, "doGamma"),
+		&doGamma, SHADER_UNIFORM_INT);
+	SetShaderValue(skyboxModel.materials[0].shader,
+		GetShaderLocation(skyboxModel.materials[0].shader, "vflipped"),
+		&vflipped, SHADER_UNIFORM_INT);
 
-	// Load the cubemap conversion shader (panorama -> cubemap)
 	Shader shdrCubemap = LoadShader(
 		TextFormat("resources/shaders/glsl%i/cubemap.vs", GLSL_VERSION),
 		TextFormat("resources/shaders/glsl%i/cubemap.fs", GLSL_VERSION));
-
 	int equirect = 0;
 	SetShaderValue(shdrCubemap,
 		GetShaderLocation(shdrCubemap, "equirectangularMap"),
 		&equirect, SHADER_UNIFORM_INT);
 
-	// Load HDR panorama and convert it to a cubemap
 	Texture2D panorama = LoadTexture("resources/skybox.png");
 	skyboxModel.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture =
 		GenTextureCubemap(shdrCubemap, panorama, 1024, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
-
-	// These are no longer needed after cubemap generation
 	UnloadTexture(panorama);
 	UnloadShader(shdrCubemap);
-
 }
 
 
 void Renderer::Update()
 {
 	cam.Update();
-
 	Camera3D camera = cam.ReturnCam();
-	float cameraPos[3] = { camera.position.x, camera.position.y, camera.position.z };
 
-	SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], cameraPos, SHADER_UNIFORM_VEC3);
+	// Update view position uniform
+	SetShaderValue(shadowShader, shadowShader.locs[SHADER_LOC_VECTOR_VIEW],
+		&camera.position, SHADER_UNIFORM_VEC3);
 
-	for (auto& light : lights) UpdateLightValues(shader, light);
+	// -------------------------------------------------------
+	// PASS 1: Render depth from light's point of view
+	// -------------------------------------------------------
+	Camera3D lightCamera = { 0 };
+	lightCamera.position = Vector3Scale(lightDir, -15.0f);
+	lightCamera.target = Vector3Zero();
+	lightCamera.projection = CAMERA_ORTHOGRAPHIC;
+	lightCamera.up = { 0.0f, 1.0f, 0.0f };
+	lightCamera.fovy = 20.0f;
 
-	BeginDrawing();
-		ClearBackground(BLACK);
-		BeginMode3D(camera);
+	Matrix lightView, lightProj;
 
-			rlDisableBackfaceCulling();
-			rlDisableDepthMask();
-			DrawModel(skyboxModel, Vector3Zero(), 1.0f, WHITE);
-			rlEnableBackfaceCulling();
-			rlEnableDepthMask();
-			
-			for (RenderModel& obj : sceneObjects)
-			{
-				obj.Draw();
-			}
+	BeginTextureMode(shadowMap);
+	ClearBackground(WHITE);
+	BeginMode3D(lightCamera);
+	lightView = rlGetMatrixModelview();
+	lightProj = rlGetMatrixProjection();
 	
-		EndMode3D();
+	rlSetCullFace(RL_CULL_FACE_FRONT);
+	for (RenderModel& obj : sceneObjects)
+	{
+		obj.Draw();
+	}
+	rlSetCullFace(RL_CULL_FACE_BACK);   // restore
+
+
+	EndMode3D();
+	EndTextureMode();
+
+	Matrix lightViewProj = MatrixMultiply(lightView, lightProj);
+
+	// -------------------------------------------------------
+	// PASS 2: Render scene with shadow lookup
+	// -------------------------------------------------------
+	BeginDrawing();
+	ClearBackground(BLACK);
+
+	SetShaderValueMatrix(shadowShader, lightVPLoc, lightViewProj);
+
+	rlEnableShader(shadowShader.id);
+	rlActiveTextureSlot(textureActiveSlot);
+	rlEnableTexture(shadowMap.depth.id);
+	rlSetUniform(shadowMapLoc, &textureActiveSlot, SHADER_UNIFORM_INT, 1);
+
+	BeginMode3D(camera);
+
+	// Skybox
+	rlDisableBackfaceCulling();
+	rlDisableDepthMask();
+	DrawModel(skyboxModel, camera.position, 1.0f, WHITE);
+	rlEnableBackfaceCulling();
+	rlEnableDepthMask();
+
+	for (RenderModel& obj : sceneObjects)
+	{
+		obj.Draw();
+	}
+
+	EndMode3D();
+	DrawFPS(10, 10);
 	EndDrawing();
 }
 
 void Renderer::Destroy()
 {
-	//UnloadTexture(textures.at("cube_texture"));
-
 	for (RenderModel& obj : sceneObjects)
-	{
 		UnloadModel(obj.model);
-	}
 
+	UnloadShader(shadowShader);
+	UnloadShadowmapRenderTexture(shadowMap);
 	UnloadShader(skyboxModel.materials[0].shader);
 	UnloadTexture(skyboxModel.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture);
 	UnloadModel(skyboxModel);
 }
 
-RenderModel::RenderModel(Model& model, Color color)
+void Renderer::AddSceneObject(RenderModel& obj)
 {
-	this->model = model;
-	this->color = color;
+	obj.model.materials[0].shader = shadowShader;
+	sceneObjects.emplace_back(obj);
+}
+
+RenderModel::RenderModel(Model& model, Color color, Vector3 pos)
+	:model(model), color(color), position(pos)
+{
+
 }
 
 void RenderModel::Draw()
 {
-	DrawModelEx(this->model, Vector3Zero(), Vector3Zero(), 0.0f, Vector3One(), this->color);
+	DrawModelEx(this->model, this->position, Vector3Zero(), 0.0f, Vector3One(), this->color);
 }
