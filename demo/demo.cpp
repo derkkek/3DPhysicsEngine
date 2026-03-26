@@ -10,6 +10,5 @@ int main(void)
 
     program.Destroy();
    
-    std::cout << "git check";
     return 0;
 }
