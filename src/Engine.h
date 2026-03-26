@@ -6,9 +6,10 @@ namespace Cacti
 	class Engine
 	{
 	public:
-		Engine() = default;
+		Engine();
 		~Engine() = default;
-
+		void Update(float dt);
+		void Init();
 		World world;
 		TransformBuffer transformBuffer;
 

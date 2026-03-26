@@ -4,7 +4,6 @@
 #include "./Physics/ShapeBase.h"
 #include "./Math/Vector.h"
 #include "./Math/Quat.h"
-#include "Engine.h"
 namespace Cacti
 {
 	class World
@@ -19,9 +18,8 @@ namespace Cacti
 
 		std::vector<Body> bodies;
 
-
+		const int MAX_BODIES = 256;
 	private:
-		Engine engine;
 
 
 	};

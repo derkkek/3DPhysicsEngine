@@ -7,10 +7,8 @@ namespace Cacti
 	class TransformBuffer
 	{
 	public:
-		TransformBuffer()
-		{
-			positions.reserve(engine.world.bodies.size());
-		}
+		TransformBuffer() = default;
+
 		~TransformBuffer() = default;
 
 		std::vector<Vec3> positions;
@@ -19,11 +17,10 @@ namespace Cacti
 		void Resize(int count)
 		{
 			positions.resize(count);
-			positions.resize(count);
+			orientations.resize(count);
 		}
 
 	private:
-		Engine engine;
 	};
 
 }

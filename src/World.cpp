@@ -37,10 +37,6 @@ namespace Cacti
 			bodies[i].position += bodies[i].linearVelocity * dt;
 		}
 
-		for (int i = 0; i < engine.transformBuffer.positions.size(); i++)
-		{
-			engine.transformBuffer.positions[i] = bodies[i].position;
-		}
 	}
 
 }

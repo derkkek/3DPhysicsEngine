@@ -228,9 +228,9 @@ void Renderer::Update()
 	rlSetCullFace(RL_CULL_FACE_FRONT);
 	for (int i = 0; i < sceneObjects.size(); i++)
 	{
-		const Vec3& p = engine.transformBuffer.positions[i];
-		sceneObjects[i]->position = { p.x, p.y, p.z };//Update positions from transform buffer.
-		sceneObjects[i]->Draw();
+		const Vec3& p = transformBuffer->positions[i];
+		sceneObjects[i].position = { p.x, p.y, p.z };//Update positions from transform buffer.
+		sceneObjects[i].Draw();
 	}
 	rlSetCullFace(RL_CULL_FACE_BACK);   // restore
 
@@ -262,9 +262,9 @@ void Renderer::Update()
 	rlEnableBackfaceCulling();
 	rlEnableDepthMask();
 
-	for (RenderModel* obj : sceneObjects)
+	for (RenderModel& obj : sceneObjects)
 	{
-		obj->Draw();
+		obj.Draw();
 	}
 
 	EndMode3D();
@@ -274,8 +274,8 @@ void Renderer::Update()
 
 void Renderer::Destroy()
 {
-	for (RenderModel* obj : sceneObjects)
-		UnloadModel(obj->model);
+	for (RenderModel& obj : sceneObjects)
+		UnloadModel(obj.model);
 
 	UnloadShader(shadowShader);
 	UnloadShadowmapRenderTexture(shadowMap);
@@ -284,19 +284,14 @@ void Renderer::Destroy()
 	UnloadModel(skyboxModel);
 }
 
-void Renderer::AddSceneObject(RenderModel* obj)
+void Renderer::AddSceneObject(RenderModel& obj)
 {
-	obj->model.materials[0].shader = shadowShader;
+	obj.model.materials[0].shader = shadowShader;
 	sceneObjects.emplace_back(obj);
 }
 
-void Renderer::UpdateRenderModelData(Cacti::Body& body, int index)
-{
-	Vector3 raylibPos = { body.position.x, body.position.y, body.position.z };
-	sceneObjects[index]->position = raylibPos;
-}
 
-RenderModel* RenderModel::BuildFromShape(Cacti::Body body, Cacti::Shape* shape)
+RenderModel RenderModel::BuildFromShape(Cacti::Body body, Cacti::Shape* shape)
 {
 	if (shape->GetType() == Cacti::Shape::ShapeType::SPHERE)
 	{
@@ -317,13 +312,13 @@ RenderModel* RenderModel::BuildFromShape(Cacti::Body body, Cacti::Shape* shape)
 
 		Color randomColor = colorList[dist(gen)];
 
-		RenderModel* sphereObj = new RenderModel{ sphere, randomColor, raylibPos };
+		RenderModel sphereObj{ sphere, randomColor, raylibPos };
 
 
 		return sphereObj;
 	}
 
-	return new RenderModel();
+	return RenderModel();
 }
 
 RenderModel::RenderModel(Model& model, Color color, Vector3 pos)

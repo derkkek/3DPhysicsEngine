@@ -13,7 +13,9 @@ Program::Program()
 	:running(true), engine()
 {
 	Init();
+	engine.Init();
 	renderer.Init();
+	renderer.SetTransformBuffer(&engine.transformBuffer);
 	InitScene();
 }
 
@@ -38,7 +40,7 @@ void Program::InitScene()
 
 	for (int i = 0; i < engine.world.bodies.size(); i++) 
 	{
-		RenderModel* sceneObject = RenderModel::BuildFromShape(engine.world.bodies[i], engine.world.bodies[i].shape);
+		RenderModel sceneObject = RenderModel::BuildFromShape(engine.world.bodies[i], engine.world.bodies[i].shape);
 		renderer.AddSceneObject(sceneObject);
 	}
 
@@ -51,11 +53,7 @@ void Program::Update()
 	while (!WindowShouldClose())
 	{
 		float dt = GetFrameTime();
-		engine.world.Update(dt);
-		//for (int i = 0; i < renderer.sceneObjects.size(); i++)
-		//{
-		//	renderer.UpdateRenderModelData(engine.world.bodies[i], i);
-		//}
+		engine.Update(dt);
 		renderer.Update();
 	}
 }
@@ -63,9 +61,5 @@ void Program::Update()
 
 void Program::Destroy()
 {
-	for (RenderModel* obj : renderer.sceneObjects)
-	{
-		delete obj;
-	}
 	CloseWindow();
 }

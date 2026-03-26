@@ -10,7 +10,7 @@
 #include <string>
 #include "Physics/ShapeBase.h"
 #include "Physics/Body.h"
-#include "Engine.h"
+#include "TransformBuffer.h"
 
 #define SHADOWMAP_RESOLUTION 2048
 
@@ -19,7 +19,7 @@ class RenderModel
 public:
 	Model model;
 	Color color;
-	static RenderModel* BuildFromShape(Cacti::Body body,Cacti::Shape* shape);
+	static RenderModel BuildFromShape(Cacti::Body body,Cacti::Shape* shape);
 
 	Vector3 position;
 
@@ -38,10 +38,11 @@ public:
 	void Update();
 	void Destroy();
 
-	void AddSceneObject(RenderModel* obj);
-	void UpdateRenderModelData(Cacti::Body& body, int index);
+	void AddSceneObject(RenderModel& obj);
 
-	std::vector<RenderModel* > sceneObjects;
+	std::vector<RenderModel > sceneObjects;
+
+	void SetTransformBuffer(const Cacti::TransformBuffer* buf) { transformBuffer = buf; }
 
 
 private:
@@ -49,6 +50,8 @@ private:
 
 	RenderTexture2D LoadShadowmapRenderTexture(int width, int height);
 	void UnloadShadowmapRenderTexture(RenderTexture2D target);
+
+	const::Cacti::TransformBuffer* transformBuffer = nullptr; // this points to the buffer because we don't want to copy buffer values to another buffer.
 
 	Shader shadowShader;
 	int lightVPLoc;
