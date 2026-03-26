@@ -1,5 +1,6 @@
 #pragma once
 #include "World.h"
+#include <TransformBuffer.h>
 namespace Cacti
 {
 	class Engine
@@ -9,7 +10,7 @@ namespace Cacti
 		~Engine() = default;
 
 		World world;
-
+		TransformBuffer transformBuffer;
 
 	private:
 	};

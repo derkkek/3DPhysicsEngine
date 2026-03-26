@@ -52,10 +52,10 @@ void Program::Update()
 	{
 		float dt = GetFrameTime();
 		engine.world.Update(dt);
-		for (int i = 0; i < renderer.sceneObjects.size(); i++)
-		{
-			renderer.UpdateRenderModelData(engine.world.bodies[i], i);
-		}
+		//for (int i = 0; i < renderer.sceneObjects.size(); i++)
+		//{
+		//	renderer.UpdateRenderModelData(engine.world.bodies[i], i);
+		//}
 		renderer.Update();
 	}
 }

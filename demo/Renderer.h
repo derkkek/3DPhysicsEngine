@@ -10,6 +10,7 @@
 #include <string>
 #include "Physics/ShapeBase.h"
 #include "Physics/Body.h"
+#include "Engine.h"
 
 #define SHADOWMAP_RESOLUTION 2048
 
@@ -44,8 +45,6 @@ public:
 
 
 private:
-
-
 	TextureCubemap GenTextureCubemap(Shader shader, Texture2D panorama, int size, int format);
 
 	RenderTexture2D LoadShadowmapRenderTexture(int width, int height);

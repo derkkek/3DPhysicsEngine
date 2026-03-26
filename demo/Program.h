@@ -18,8 +18,7 @@ public:
 	void InitScene();
 private:
 	void Init();
-	
-	//chai2d::Engine engine;
+		
 	Renderer renderer;
 	Cacti::Engine engine;
 	bool running;

@@ -226,9 +226,11 @@ void Renderer::Update()
 	lightProj = rlGetMatrixProjection();
 	
 	rlSetCullFace(RL_CULL_FACE_FRONT);
-	for (RenderModel* obj : sceneObjects)
+	for (int i = 0; i < sceneObjects.size(); i++)
 	{
-		obj->Draw();
+		const Vec3& p = engine.transformBuffer.positions[i];
+		sceneObjects[i]->position = { p.x, p.y, p.z };//Update positions from transform buffer.
+		sceneObjects[i]->Draw();
 	}
 	rlSetCullFace(RL_CULL_FACE_BACK);   // restore
 
