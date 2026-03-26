@@ -29,4 +29,16 @@ namespace Cacti
 		Vec3 worldSpace = GetCenterOfMassWorldSpace() + orientation.RotatePoint(p);
 		return worldSpace;
 	}
+	void Body::ApplyImpulse(Vec3 impulse)
+	{
+		if (invMass == 0.0f)
+		{
+			return;
+		}
+
+		// p = mv
+		// dp = m dv = J
+		// = > dv = J / m
+		linearVelocity += impulse * invMass;
+	}
 }

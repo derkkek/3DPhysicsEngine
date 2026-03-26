@@ -4,6 +4,7 @@
 #include "./Physics/ShapeBase.h"
 #include "./Math/Vector.h"
 #include "./Math/Quat.h"
+#include "Intersect.h"
 namespace Cacti
 {
 	class World

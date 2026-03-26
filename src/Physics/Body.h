@@ -16,10 +16,15 @@ namespace Cacti
 		Vec3 WorldSpaceToBodySpace(const Vec3& p) const;
 		Vec3 BodySpaceToWorldSpace(const Vec3& p) const;
 
+		void ApplyImpulse(Vec3 impules);
+
 		Vec3 linearVelocity;
 		Vec3 position;
 		Quat orientation;
 		Shape* shape;
+
+		float invMass;
+
 	private:
 
 	};
