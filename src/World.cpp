@@ -14,13 +14,16 @@ namespace Cacti
 	void World::Initialize()
 	{
 		Body body;
-		body.position = Vec3(0, 20, 0);
+		body.position = Vec3(0, 5, 0);
+		body.linearVelocity = Vec3(0, 0, 0);
 		body.orientation = Quat(0, 0, 0, 1);
+		body.invMass = 1.0f;
 		body.shape = new Sphere(1.0f);
 		bodies.push_back(body);
 
 		body.position = Vec3(0, -101, 0);
 		body.orientation = Quat(0, 0, 0, 1);
+		body.linearVelocity = Vec3(0, 0, 0);
 		body.invMass = 0.0f;
 		body.shape = new Sphere(100.0f);
 		bodies.push_back(body);
@@ -38,14 +41,18 @@ namespace Cacti
 		{
 			for (int j = i + 1; j < bodies.size(); j++)
 			{
-				Body a = bodies[i];
-				Body b = bodies[j];
+				Body* a = &bodies[i];
+				Body* b = &bodies[j];
 				
-				if (a.invMass == 0.0f && b.invMass == 0.0f)
+				if (a->invMass == 0.0f && b->invMass == 0.0f)
 				{
 					continue;
 				}
-				Intersect(&a, &b);
+				Contact contact;
+				if (Intersect(a, b, contact))
+				{
+					ResolveContact(contact);
+				}
 			}
 		}
 
