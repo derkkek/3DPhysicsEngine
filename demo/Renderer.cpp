@@ -23,9 +23,9 @@ TextureCubemap Renderer::GenTextureCubemap(Shader shader, Texture2D panorama, in
 	// STEP 1: Setup framebuffer
 	//------------------------------------------------------------------------------------------
 	unsigned int rbo = rlLoadTextureDepth(size, size, true);
-	cubemap.id = rlLoadTextureCubemap(0, size, format);
+	cubemap.id = rlLoadTextureCubemap(0, size, format,1);
 
-	unsigned int fbo = rlLoadFramebuffer(size, size);
+	unsigned int fbo = rlLoadFramebuffer();
 	rlFramebufferAttach(fbo, rbo, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_RENDERBUFFER, 0);
 	rlFramebufferAttach(fbo, cubemap.id, RL_ATTACHMENT_COLOR_CHANNEL0, RL_ATTACHMENT_CUBEMAP_POSITIVE_X, 0);
 
@@ -106,7 +106,7 @@ TextureCubemap Renderer::GenTextureCubemap(Shader shader, Texture2D panorama, in
 RenderTexture2D Renderer::LoadShadowmapRenderTexture(int width, int height)
 {
 	RenderTexture2D target = { 0 };
-	target.id = rlLoadFramebuffer(width, height);
+	target.id = rlLoadFramebuffer();
 	target.texture.width = width;
 	target.texture.height = height;
 
