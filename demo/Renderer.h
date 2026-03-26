@@ -51,7 +51,7 @@ private:
 	RenderTexture2D LoadShadowmapRenderTexture(int width, int height);
 	void UnloadShadowmapRenderTexture(RenderTexture2D target);
 
-	const::Cacti::TransformBuffer* transformBuffer = nullptr; // this points to the buffer because we don't want to copy buffer values to another buffer.
+	const::Cacti::TransformBuffer* transformBuffer = nullptr; // this points to the actual buffer because we don't want to copy buffer values to another buffer.
 
 	Shader shadowShader;
 	int lightVPLoc;
