@@ -23,6 +23,7 @@ namespace Cacti
 		Quat orientation;
 		Shape* shape;
 
+		float elasticity;
 		float invMass;
 
 	private:

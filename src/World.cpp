@@ -18,12 +18,14 @@ namespace Cacti
 		body.linearVelocity = Vec3(0, 0, 0);
 		body.orientation = Quat(0, 0, 0, 1);
 		body.invMass = 1.0f;
+		body.elasticity = 0.5f;
 		body.shape = new Sphere(1.0f);
 		bodies.push_back(body);
 
 		body.position = Vec3(0, -101, 0);
 		body.orientation = Quat(0, 0, 0, 1);
 		body.linearVelocity = Vec3(0, 0, 0);
+		body.elasticity = 1.0f;
 		body.invMass = 0.0f;
 		body.shape = new Sphere(100.0f);
 		bodies.push_back(body);
