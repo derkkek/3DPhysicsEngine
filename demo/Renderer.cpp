@@ -299,7 +299,7 @@ RenderModel RenderModel::BuildFromShape(Cacti::Body body, Cacti::Shape* shape)
 	if (shape->GetType() == Cacti::Shape::ShapeType::SPHERE)
 	{
 		Cacti::Sphere* sphereShape = (Cacti::Sphere*)shape;
-		Model sphere = LoadModelFromMesh(GenMeshSphere(sphereShape->radius, 25, 25));
+		Model sphere = LoadModelFromMesh(GenMeshSphere(sphereShape->radius, 50, 50));
 		Vector3 raylibPos = { body.position.x, body.position.y, body.position.z };
 
 		static const Color colorList[] = {
@@ -339,5 +339,5 @@ void RenderModel::Draw()
 	float angleDeg = angle * RAD2DEG;
 	Vector3 raylibAxis = { axis.x, axis.y, axis.z };
 
-	DrawModelEx(this->model, this->position, raylibAxis, angleDeg, Vector3One(), this->color);
+	DrawModelWiresEx(this->model, this->position, raylibAxis, angleDeg, Vector3One(), this->color);
 }

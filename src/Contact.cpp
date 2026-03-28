@@ -38,15 +38,12 @@ namespace Cacti
 		const float impulseJ = -(1 + elasticity) * vab.Dot(n) / (invMassA + invMassB); //we solve collision only in the collision normal direction so we project relative velocity to collision normal. We don't need other directions.
 		const Vec3 vectorImpulseJ = n * impulseJ;
 
-		const float frictionA = a->friction;
-		const float frictionB = b->friction;
-		const float friction = frictionA * frictionB;
-
-
 		a->ApplyImpulse(ptOnA, vectorImpulseJ * 1.0f);
 		b->ApplyImpulse(ptOnB, vectorImpulseJ * -1.0f);
 
-
+		const float frictionA = a->friction;
+		const float frictionB = b->friction;
+		const float friction = frictionA * frictionB;
 
 		const Vec3 velNormal = n * n.Dot(vab);
 		const Vec3 velTang = vab - velNormal;

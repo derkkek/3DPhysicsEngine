@@ -13,6 +13,10 @@ namespace Cacti
 	void Engine::Update(float dt)
 	{
 		world.Update(dt);
+		UpdateTransformBuffer();
+	}
+	void Engine::UpdateTransformBuffer()
+	{
 		for (int i = 0; i < world.bodies.size(); i++)
 		{
 			transformBuffer.positions[i] = world.bodies[i].position;
