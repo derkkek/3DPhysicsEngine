@@ -11,7 +11,7 @@ namespace Cacti
 		position += linearVelocity * dt;
 
 		Vec3 positionCM = GetCenterOfMassWorldSpace();
-		Vec3 cmToPos = position - cmToPos;
+		Vec3 cmToPos = position - positionCM;
 
 		Mat3 orientation = this->orientation.ToMat3();
 		Mat3 inertiaTensor = orientation * shape->InertiaTensor() * orientation.Transpose();

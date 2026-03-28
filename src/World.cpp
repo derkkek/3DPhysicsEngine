@@ -14,7 +14,7 @@ namespace Cacti
 	void World::Initialize()
 	{
 		Body body;
-		body.position = Vec3(0, 5, 0);
+		body.position = Vec3(0, 2, 0);
 		body.linearVelocity = Vec3(0, 0, 0);
 		body.orientation = Quat(0, 0, 0, 1);
 		body.invMass = 1.0f;
@@ -38,7 +38,7 @@ namespace Cacti
 		for (int i = 0; i < bodies.size(); i++)
 		{
 			float mass = 1 / bodies[i].invMass;
-			Vec3 impulseGravity = Vec3(0.1f, -10, 0) * mass * dt;
+			Vec3 impulseGravity = Vec3(0.0f, -10, 0.0f) * mass * dt;
 			bodies[i].ApplyImpulse(bodies[i].position, impulseGravity);
 		}
 		for (int i = 0; i < bodies.size(); i++)
@@ -62,7 +62,7 @@ namespace Cacti
 
 		for (int i = 0; i < bodies.size(); i++)
 		{
-			bodies[i].position += bodies[i].linearVelocity * dt;
+			bodies[i].Update(dt);
 		}
 
 	}

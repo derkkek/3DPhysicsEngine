@@ -9,6 +9,7 @@
 #define GLSL_VERSION            100
 #endif
 #include <random> 
+#include <iostream>
 Renderer::Renderer()
 	:cam(),shader(),shadowShader()
 {
@@ -229,7 +230,9 @@ void Renderer::Update()
 	for (int i = 0; i < sceneObjects.size(); i++)
 	{
 		const Vec3& p = transformBuffer->positions[i];
+		const Cacti::Quat& q = transformBuffer->orientations[i];
 		sceneObjects[i].position = { p.x, p.y, p.z };//Update positions from transform buffer.
+		sceneObjects[i].orientation = q;
 		sceneObjects[i].Draw();
 	}
 	rlSetCullFace(RL_CULL_FACE_BACK);   // restore
@@ -329,6 +332,12 @@ RenderModel::RenderModel(Model& model, Color color, Vector3 pos)
 
 void RenderModel::Draw()
 {
-	//TODO:: render objects with respect to their orientations.
-	DrawModelEx(this->model, this->position, Vector3Zero(), 0.0f, Vector3One(), this->color);
+	Vec3 axis;
+	float angle;
+ 	orientation.ToAxisAngle(axis, angle);
+
+	float angleDeg = angle * RAD2DEG;
+	Vector3 raylibAxis = { axis.x, axis.y, axis.z };
+
+	DrawModelEx(this->model, this->position, raylibAxis, angleDeg, Vector3One(), this->color);
 }

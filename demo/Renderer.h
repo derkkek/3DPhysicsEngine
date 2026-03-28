@@ -11,6 +11,7 @@
 #include "Physics/ShapeBase.h"
 #include "Physics/Body.h"
 #include "TransformBuffer.h"
+#include "Math/Quat.h"
 
 #define SHADOWMAP_RESOLUTION 2048
 
@@ -22,6 +23,7 @@ public:
 	static RenderModel BuildFromShape(Cacti::Body body,Cacti::Shape* shape);
 
 	Vector3 position;
+	Cacti::Quat orientation;
 
 	RenderModel() = default;
 	RenderModel(Model& model, Color color, Vector3 pos);
