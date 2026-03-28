@@ -296,7 +296,7 @@ RenderModel RenderModel::BuildFromShape(Cacti::Body body, Cacti::Shape* shape)
 	if (shape->GetType() == Cacti::Shape::ShapeType::SPHERE)
 	{
 		Cacti::Sphere* sphereShape = (Cacti::Sphere*)shape;
-		Model sphere = LoadModelFromMesh(GenMeshSphere(sphereShape->radius, 50, 50));
+		Model sphere = LoadModelFromMesh(GenMeshSphere(sphereShape->radius, 25, 25));
 		Vector3 raylibPos = { body.position.x, body.position.y, body.position.z };
 
 		static const Color colorList[] = {
@@ -329,5 +329,6 @@ RenderModel::RenderModel(Model& model, Color color, Vector3 pos)
 
 void RenderModel::Draw()
 {
+	//TODO:: render objects with respect to their orientations.
 	DrawModelEx(this->model, this->position, Vector3Zero(), 0.0f, Vector3One(), this->color);
 }

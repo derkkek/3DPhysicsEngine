@@ -19,6 +19,7 @@ namespace Cacti
 		body.orientation = Quat(0, 0, 0, 1);
 		body.invMass = 1.0f;
 		body.elasticity = 0.5f;
+		body.friction = 0.5f;
 		body.shape = new Sphere(1.0f);
 		bodies.push_back(body);
 
@@ -26,6 +27,7 @@ namespace Cacti
 		body.orientation = Quat(0, 0, 0, 1);
 		body.linearVelocity = Vec3(0, 0, 0);
 		body.elasticity = 1.0f;
+		body.friction = 0.5f;
 		body.invMass = 0.0f;
 		body.shape = new Sphere(100.0f);
 		bodies.push_back(body);
@@ -36,8 +38,8 @@ namespace Cacti
 		for (int i = 0; i < bodies.size(); i++)
 		{
 			float mass = 1 / bodies[i].invMass;
-			Vec3 impulseGravity = Vec3(0, -10, 0) * mass * dt;
-			bodies[i].ApplyImpulse(impulseGravity);
+			Vec3 impulseGravity = Vec3(0.1f, -10, 0) * mass * dt;
+			bodies[i].ApplyImpulse(bodies[i].position, impulseGravity);
 		}
 		for (int i = 0; i < bodies.size(); i++)
 		{

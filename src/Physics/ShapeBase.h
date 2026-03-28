@@ -1,5 +1,6 @@
 #pragma once
 #include "Math/Vector.h"
+#include "Math/Matrix.h"
 namespace Cacti
 {
 	class Shape
@@ -18,6 +19,8 @@ namespace Cacti
 		{
 			return centerOfMass;
 		}
+
+		virtual Mat3 InertiaTensor() const = 0;
 
 	protected:
 		Vec3 centerOfMass;
@@ -39,6 +42,7 @@ namespace Cacti
 		}
 		float radius;
 
+		Mat3 InertiaTensor() const override;
 	private:
 
 	};
