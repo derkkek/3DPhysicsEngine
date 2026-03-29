@@ -232,7 +232,7 @@ void Renderer::Update()
 		const Vec3& p = transformBuffer->positions[i];
 		const Cacti::Quat& q = transformBuffer->orientations[i];
 		sceneObjects[i].position = { p.x, p.y, p.z };//Update positions from transform buffer.
-		sceneObjects[i].orientation = q;
+		sceneObjects[i].orientation = {q.x, q.y, q.z, q.w};
 		sceneObjects[i].Draw();
 	}
 	rlSetCullFace(RL_CULL_FACE_BACK);   // restore
@@ -332,12 +332,12 @@ RenderModel::RenderModel(Model& model, Color color, Vector3 pos)
 
 void RenderModel::Draw()
 {
-	Vec3 axis;
+	Vector3 axis;
 	float angle;
- 	orientation.ToAxisAngle(axis, angle);
-
+ 	//orientation.ToAxisAngle(axis, angle);
+	QuaternionToAxisAngle(orientation, &axis, &angle);
 	float angleDeg = angle * RAD2DEG;
 	Vector3 raylibAxis = { axis.x, axis.y, axis.z };
 
-	DrawModelEx(this->model, this->position, raylibAxis, angleDeg, Vector3One(), this->color);
+	DrawModelWiresEx(this->model, this->position, raylibAxis, angleDeg, Vector3One(), this->color);
 }

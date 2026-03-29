@@ -23,8 +23,7 @@ public:
 	static RenderModel BuildFromShape(Cacti::Body body,Cacti::Shape* shape);
 
 	Vector3 position;
-	Cacti::Quat orientation;
-
+	Quaternion orientation;
 	RenderModel() = default;
 	RenderModel(Model& model, Color color, Vector3 pos);
 	void Draw();
