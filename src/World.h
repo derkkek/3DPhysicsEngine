@@ -22,7 +22,6 @@ namespace Cacti
 		const int MAX_BODIES = 256;
 	private:
 
-
 	};
 
 }

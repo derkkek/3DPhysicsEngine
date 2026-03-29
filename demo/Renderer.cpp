@@ -339,5 +339,5 @@ void RenderModel::Draw()
 	float angleDeg = angle * RAD2DEG;
 	Vector3 raylibAxis = { axis.x, axis.y, axis.z };
 
-	DrawModelWiresEx(this->model, this->position, raylibAxis, angleDeg, Vector3One(), this->color);
+	DrawModelEx(this->model, this->position, raylibAxis, angleDeg, Vector3One(), this->color);
 }

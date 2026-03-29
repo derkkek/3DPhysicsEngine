@@ -1,6 +1,8 @@
 #pragma once
 #include "Math/Vector.h"
 #include "Math/Matrix.h"
+#include "Math/Bounds.h"
+#include "Math/Quat.h"
 namespace Cacti
 {
 	class Shape
@@ -14,6 +16,8 @@ namespace Cacti
 		~Shape() = default;
 
 		virtual ShapeType GetType() const = 0;
+		virtual Bounds GetBounds(const Vec3& pos, const Quat& orient) const = 0;
+		virtual Bounds GetBounds() const = 0;
 
 		virtual Vec3 GetCenterOfMass() const
 		{
@@ -43,6 +47,9 @@ namespace Cacti
 		float radius;
 
 		Mat3 InertiaTensor() const override;
+
+		Bounds GetBounds(const Vec3& pos, const Quat& orient) const override;
+		Bounds GetBounds() const override;
 	private:
 
 	};

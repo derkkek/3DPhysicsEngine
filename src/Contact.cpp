@@ -62,13 +62,17 @@ namespace Cacti
 
 		// also move colliding objects to just outside of each other.
 
-		const Vec3 ds = ptOnB - ptOnA;
+		if (contact.timeOfImpact == 0.0f)
+		{
+			const Vec3 ds = ptOnB - ptOnA;
 
-		const float tA = invMassA / (invMassA + invMassB);
-		const float tB = invMassB / (invMassA + invMassB);
+			const float tA = invMassA / (invMassA + invMassB);
+			const float tB = invMassB / (invMassA + invMassB);
 
-		a->position += ds * tA;
-		b->position -= ds * tB;
+			a->position += ds * tA;
+			b->position -= ds * tB;
+		}
+
 	}
 
 }
