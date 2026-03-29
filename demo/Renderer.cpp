@@ -216,7 +216,7 @@ void Renderer::Update()
 	lightCamera.target = Vector3Zero();
 	lightCamera.projection = CAMERA_ORTHOGRAPHIC;
 	lightCamera.up = { 0.0f, 1.0f, 0.0f };
-	lightCamera.fovy = 20.0f;
+	lightCamera.fovy = 180.0f;
 
 	Matrix lightView, lightProj;
 
@@ -339,5 +339,5 @@ void RenderModel::Draw()
 	float angleDeg = angle * RAD2DEG;
 	Vector3 raylibAxis = { axis.x, axis.y, axis.z };
 
-	DrawModelWiresEx(this->model, this->position, raylibAxis, angleDeg, Vector3One(), this->color);
+	DrawModelEx(this->model, this->position, raylibAxis, angleDeg, Vector3One(), this->color);
 }
