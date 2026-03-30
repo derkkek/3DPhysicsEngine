@@ -34,7 +34,6 @@ namespace Cacti
 		float elasticity;
 		float friction;
 		float invMass;
-
 	private:
 
 	};

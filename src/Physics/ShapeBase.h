@@ -26,6 +26,9 @@ namespace Cacti
 
 		virtual Mat3 InertiaTensor() const = 0;
 
+		Bounds bounds;
+
+
 	protected:
 		Vec3 centerOfMass;
 	};

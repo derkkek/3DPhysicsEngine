@@ -22,7 +22,7 @@ namespace Cacti
 		~Bounds() {}
 
 		void Clear() { mins = Vec3(1e6); maxs = Vec3(-1e6); }
-		bool DoesIntersect(const Bounds& rhs) const;
+		bool DoesIntersect(const Bounds& rhs);
 		void Expand(const Vec3* pts, const int num);
 		void Expand(const Vec3& rhs);
 		void Expand(const Bounds& rhs);
@@ -34,5 +34,6 @@ namespace Cacti
 	public:
 		Vec3 mins;
 		Vec3 maxs;
+		bool collided;
 	};
 }

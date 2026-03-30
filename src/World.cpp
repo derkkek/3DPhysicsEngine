@@ -67,6 +67,11 @@ namespace Cacti
 
 	void World::Update(const float dt)
 	{
+		// Reset collided flags for this frame
+		for (int i = 0; i < (int)bodies.size(); ++i) {
+			bodies[i].shape->bounds.collided = false;
+		}
+
 		for (int i = 0; i < bodies.size(); i++)
 		{
 			float mass = 1 / bodies[i].invMass;
@@ -78,7 +83,6 @@ namespace Cacti
 
 		std::vector< collisionPair > collisionPairs;
 		BroadPhase(bodies.data(), (int)bodies.size(), collisionPairs, dt);
-
 
 
 		int numContacts = 0;

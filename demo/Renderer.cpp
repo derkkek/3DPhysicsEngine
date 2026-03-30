@@ -233,6 +233,7 @@ void Renderer::Update()
 		const Cacti::Quat& q = transformBuffer->orientations[i];
 		sceneObjects[i].position = { p.x, p.y, p.z };//Update positions from transform buffer.
 		sceneObjects[i].orientation = {q.x, q.y, q.z, q.w};
+
 		sceneObjects[i].Draw();
 	}
 	rlSetCullFace(RL_CULL_FACE_BACK);   // restore
@@ -265,10 +266,30 @@ void Renderer::Update()
 	rlEnableBackfaceCulling();
 	rlEnableDepthMask();
 
-	for (RenderModel& obj : sceneObjects)
+	for (int i = 0; i < sceneObjects.size(); i++)
 	{
-		obj.Draw();
+		sceneObjects[i].Draw();
+
+		BoundingBox bb{};
+		bb.max.x = transformBuffer->boundingBoxes[i].maxs.x;
+		bb.max.y = transformBuffer->boundingBoxes[i].maxs.y;
+		bb.max.z = transformBuffer->boundingBoxes[i].maxs.z;
+
+		bb.min.x = transformBuffer->boundingBoxes[i].mins.x;
+		bb.min.y = transformBuffer->boundingBoxes[i].mins.y;
+		bb.min.z = transformBuffer->boundingBoxes[i].mins.z;
+
+		if (transformBuffer->boundingBoxes[i].collided)
+		{
+			DrawBoundingBox(bb, RED);
+		}
+		else
+		{
+			DrawBoundingBox(bb, GREEN);
+		}
 	}
+
+
 
 	EndMode3D();
 	DrawFPS(10, 10);

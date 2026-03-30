@@ -22,13 +22,16 @@ namespace Cacti
 Bounds::DoesIntersect
 ====================================================
 */
-bool Bounds::DoesIntersect( const Bounds & rhs ) const {
+bool Bounds::DoesIntersect( const Bounds & rhs ) {
 	if ( maxs.x < rhs.mins.x || maxs.y < rhs.mins.y || maxs.z < rhs.mins.z ) {
+		collided = false;
 		return false;
 	}
 	if ( rhs.maxs.x < mins.x || rhs.maxs.y < mins.y || rhs.maxs.z < mins.z ) {
+		collided = false;
 		return false;
 	}
+	collided = true;
 	return true;
 }
 

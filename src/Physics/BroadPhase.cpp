@@ -73,6 +73,7 @@ namespace Cacti
 
 				pair.b = b.id;
 				collisionPairs.push_back(pair);
+				
 			}
 		}
 	}
@@ -88,6 +89,22 @@ namespace Cacti
 		finalPairs.clear();
 
 		SweepAndPrune1D(bodies, num, finalPairs, dt_sec);
+
+		// Flagging collision of bounding boxes to debug rendering
+		for (const collisionPair& cp : finalPairs) {
+			const int a = cp.a;
+			const int b = cp.b;
+			//if (a < 0 || a >= (int)bodies.size() || b < 0 || b >= (int)bodies.size()) continue;
+
+			// get world-space bounds for each body
+			Bounds ba = bodies[a].shape->GetBounds(bodies[a].position, bodies[a].orientation);
+			Bounds bb = bodies[b].shape->GetBounds(bodies[b].position, bodies[b].orientation);
+
+			if (ba.DoesIntersect(bb)) {
+				bodies[a].shape->bounds.collided = true;
+				bodies[b].shape->bounds.collided = true;
+			}
+		}
 	}
 
 
