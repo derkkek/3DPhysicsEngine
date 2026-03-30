@@ -37,9 +37,9 @@ namespace Cacti
 				float radius  = 0.5 ;
 				float xx = float(x - 1) * radius * 1.5f;
 				float zz = float(z - 1) * radius * 1.5f;
-				body.position = Vec3(xx, 10, zz);
+				body.position = Vec3(xx, 50, zz);
 				body.orientation = Quat(0, 0, 0, 1);
-				body.linearVelocity.Zero();
+				body.linearVelocity = Vec3(0, 10, 0);
 				body.invMass = 1.0f;
 				body.elasticity = 0.5f;
 				body.friction= 0.5f;
@@ -89,25 +89,24 @@ namespace Cacti
 		const int maxContacts = bodies.size() * bodies.size();
 		std::vector<Contact> contacts(maxContacts);
 
-		for (int i = 0; i < bodies.size(); i++)
+		for (int i = 0; i < collisionPairs.size(); i++) 
 		{
-			for (int j = i + 1; j < bodies.size(); j++)
-			{
-				Body* a = &bodies[i];
-				Body* b = &bodies[j];
-				
-				if (a->invMass == 0.0f && b->invMass == 0.0f)
-				{
-					continue;
-				}
-				Contact contact;
-				if (Intersect(a, b, dt, contact))
-				{
-					contacts[numContacts] = contact;
-					numContacts++;
-				}
+			const CollisionPair& pair = collisionPairs[i];
+			Body* bodyA = &bodies[pair.a];
+			Body* bodyB = &bodies[pair.b];
+
+			// Skip body pairs with infinite mass
+			if (0.0f == bodyA->invMass && 0.0f == bodyB->invMass) {
+				continue;
+			}
+
+			Contact contact;
+			if (Intersect(bodyA, bodyB, dt, contact)) {
+				contacts[numContacts] = contact;
+				numContacts++;
 			}
 		}
+
 
         if (numContacts > 1)
 		{
