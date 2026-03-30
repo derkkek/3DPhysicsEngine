@@ -15,15 +15,22 @@ namespace Cacti
 	void Engine::Update(float dt)
 	{
 		world.Update(dt);
-		UpdateTransformBuffer();
+		UpdateTransformBuffer(dt);
 	}
-	void Engine::UpdateTransformBuffer()
+	void Engine::UpdateTransformBuffer(float dt)
 	{
 		for (int i = 0; i < world.bodies.size(); i++)
 		{
 			transformBuffer.positions[i] = world.bodies[i].position;
 			transformBuffer.orientations[i] = world.bodies[i].orientation;
 			transformBuffer.boundingBoxes[i] = world.bodies[i].shape->GetBounds(world.bodies[i].position, world.bodies[i].orientation);
+			transformBuffer.boundingBoxes[i].Expand(transformBuffer.boundingBoxes[i].mins + world.bodies[i].linearVelocity * dt);
+			transformBuffer.boundingBoxes[i].Expand(transformBuffer.boundingBoxes[i].maxs + world.bodies[i].linearVelocity * dt);
+
+			const float epsilon = 0.01f;
+			transformBuffer.boundingBoxes[i].Expand(transformBuffer.boundingBoxes[i].mins + Vec3(-1, -1, -1) * epsilon);
+			transformBuffer.boundingBoxes[i].Expand(transformBuffer.boundingBoxes[i].maxs + Vec3(1, 1, 1) * epsilon);
+
 			transformBuffer.boundingBoxes[i].collided = world.bodies[i].shape->bounds.collided;
 		}
 	}

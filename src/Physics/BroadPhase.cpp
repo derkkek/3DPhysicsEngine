@@ -78,14 +78,16 @@ namespace Cacti
 		}
 	}
 
-	void SweepAndPrune1D(const Body* bodies, const int num, std::vector< CollisionPair >& finalPairs, const float dt_sec) {
+	void SweepAndPrune1D(const Body* bodies, const int num, std::vector< CollisionPair >& finalPairs, const float dt_sec) 
+	{
 		PsuedoBody* sortedBodies = (PsuedoBody*)alloca(sizeof(PsuedoBody) * num * 2);
 
 		SortBodiesBounds(bodies, num, sortedBodies, dt_sec);
 		BuildPairs(finalPairs, sortedBodies, num);
 	}
 
-	void BroadPhase(const Body* bodies, const int num, std::vector< CollisionPair >& finalPairs, const float dt_sec) {
+	void BroadPhase(const Body* bodies, const int num, std::vector< CollisionPair >& finalPairs, const float dt_sec)
+	{
 		finalPairs.clear();
 
 		SweepAndPrune1D(bodies, num, finalPairs, dt_sec);
