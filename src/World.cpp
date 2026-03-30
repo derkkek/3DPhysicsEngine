@@ -81,7 +81,7 @@ namespace Cacti
 
 		// Broadphase
 
-		std::vector< collisionPair > collisionPairs;
+		std::vector< CollisionPair > collisionPairs;
 		BroadPhase(bodies.data(), (int)bodies.size(), collisionPairs, dt);
 
 

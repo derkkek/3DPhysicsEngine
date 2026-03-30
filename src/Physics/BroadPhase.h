@@ -5,26 +5,26 @@
 
 namespace Cacti
 {
-	struct psuedoBody 
+	struct PsuedoBody 
 	{
 		int id;
 		float value;
 		bool ismin;
 	};
 
-	struct collisionPair
+	struct CollisionPair
 	{
 		int a;
 		int b;
 
-		bool operator == (const collisionPair& rhs) const {
+		bool operator == (const CollisionPair& rhs) const {
 			return (((a == rhs.a) && (b == rhs.b)) || ((a == rhs.b) && (b == rhs.a)));
 		}
-		bool operator != (const collisionPair& rhs) const {
+		bool operator != (const CollisionPair& rhs) const {
 			return !(*this == rhs);
 		}
 	};
 
-	void BroadPhase(const Body* bodies, const int num, std::vector< collisionPair >& finalPairs, const float dt_sec);
+	void BroadPhase(const Body* bodies, const int num, std::vector< CollisionPair >& finalPairs, const float dt_sec);
 
 }

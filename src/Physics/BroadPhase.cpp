@@ -5,8 +5,8 @@
 namespace Cacti
 {
 	int CompareSAP(const void* a, const void* b) {
-		const psuedoBody* ea = (const psuedoBody*)a;
-		const psuedoBody* eb = (const psuedoBody*)b;
+		const PsuedoBody* ea = (const PsuedoBody*)a;
+		const PsuedoBody* eb = (const PsuedoBody*)b;
 
 		if (ea->value < eb->value) {
 			return -1;
@@ -19,7 +19,7 @@ namespace Cacti
 	SortBodiesBounds
 	====================================================
 	*/
-	void SortBodiesBounds(const Body* bodies, const int num, psuedoBody* sortedArray, const float dt_sec) {
+	void SortBodiesBounds(const Body* bodies, const int num, PsuedoBody* sortedArray, const float dt_sec) {
 		Vec3 axis = Vec3(1, 1, 1);
 		axis.Normalize();
 
@@ -44,24 +44,24 @@ namespace Cacti
 			sortedArray[i * 2 + 1].ismin = false;
 		}
 
-		qsort(sortedArray, num * 2, sizeof(psuedoBody), CompareSAP);
+		qsort(sortedArray, num * 2, sizeof(PsuedoBody), CompareSAP);
 	}
 
-	void BuildPairs(std::vector< collisionPair >& collisionPairs, const psuedoBody* sortedBodies, const int num) {
+	void BuildPairs(std::vector< CollisionPair >& collisionPairs, const PsuedoBody* sortedBodies, const int num) {
 		collisionPairs.clear();
 
 		// Now that the bodies are sorted, build the collision pairs
 		for (int i = 0; i < num * 2; i++) {
-			const psuedoBody& a = sortedBodies[i];
+			const PsuedoBody& a = sortedBodies[i];
 			if (!a.ismin) {
 				continue;
 			}
 
-			collisionPair pair;
+			CollisionPair pair;
 			pair.a = a.id;
 
 			for (int j = i + 1; j < num * 2; j++) {
-				const psuedoBody& b = sortedBodies[j];
+				const PsuedoBody& b = sortedBodies[j];
 				// if we've hit the end of the a element, then we're done creating pairs with a
 				if (b.id == a.id) {
 					break;
@@ -78,20 +78,20 @@ namespace Cacti
 		}
 	}
 
-	void SweepAndPrune1D(const Body* bodies, const int num, std::vector< collisionPair >& finalPairs, const float dt_sec) {
-		psuedoBody* sortedBodies = (psuedoBody*)alloca(sizeof(psuedoBody) * num * 2);
+	void SweepAndPrune1D(const Body* bodies, const int num, std::vector< CollisionPair >& finalPairs, const float dt_sec) {
+		PsuedoBody* sortedBodies = (PsuedoBody*)alloca(sizeof(PsuedoBody) * num * 2);
 
 		SortBodiesBounds(bodies, num, sortedBodies, dt_sec);
 		BuildPairs(finalPairs, sortedBodies, num);
 	}
 
-	void BroadPhase(const Body* bodies, const int num, std::vector< collisionPair >& finalPairs, const float dt_sec) {
+	void BroadPhase(const Body* bodies, const int num, std::vector< CollisionPair >& finalPairs, const float dt_sec) {
 		finalPairs.clear();
 
 		SweepAndPrune1D(bodies, num, finalPairs, dt_sec);
 
 		// Flagging collision of bounding boxes to debug rendering
-		for (const collisionPair& cp : finalPairs) {
+		for (const CollisionPair& cp : finalPairs) {
 			const int a = cp.a;
 			const int b = cp.b;
 			//if (a < 0 || a >= (int)bodies.size() || b < 0 || b >= (int)bodies.size()) continue;
