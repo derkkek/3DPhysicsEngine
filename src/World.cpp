@@ -37,9 +37,9 @@ namespace Cacti
 				float radius  = 0.5 ;
 				float xx = float(x - 1) * radius * 1.5f;
 				float zz = float(z - 1) * radius * 1.5f;
-				body.position = Vec3(xx, 50, zz);
+				body.position = Vec3(xx, 10, zz);
 				body.orientation = Quat(0, 0, 0, 1);
-				body.linearVelocity = Vec3(0, 10, 0);
+				body.linearVelocity.Zero();
 				body.invMass = 1.0f;
 				body.elasticity = 0.5f;
 				body.friction= 0.5f;
@@ -67,15 +67,12 @@ namespace Cacti
 
 	void World::Update(const float dt)
 	{
-		// Reset collided flags for this frame
-		for (int i = 0; i < (int)bodies.size(); ++i) {
-			bodies[i].shape->bounds.collided = false;
-		}
 
 		for (int i = 0; i < bodies.size(); i++)
 		{
 			float mass = 1 / bodies[i].invMass;
 			Vec3 impulseGravity = Vec3(0.0f, -10, 0.0f) * mass * dt;
+			bodies[i].shape->bounds.collided = false;
 			bodies[i].ApplyImpulse(bodies[i].position, impulseGravity);
 		}
 
