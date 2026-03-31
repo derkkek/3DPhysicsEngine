@@ -101,12 +101,12 @@ namespace Cacti
 		body.position = Vec3(0, 0, 0);
 		body.orientation = Quat(0, 0, 0, 1);
 		body.linearVelocity = Vec3(0, 0, 0);
-		body.angularVelocity = Vec3(0, 0, 10);
+		body.angularVelocity = Vec3(0, 0, 0.2);
 		body.invMass = 1.0f;
 		body.elasticity = 0.5f;
 		body.friction = 0.5f;
 		//FillDiamond();
-		body.shape = new Convex(Cacti::BoxSmall, sizeof(Cacti::BoxSmall) / sizeof(Vec3));
+		body.shape = new Convex(Cacti::BoxHead, sizeof(Cacti::BoxHead) / sizeof(Vec3));
 		bodies.push_back(body);
 
 		//AddStandardSandBox(bodies);

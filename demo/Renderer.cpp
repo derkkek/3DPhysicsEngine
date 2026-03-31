@@ -316,9 +316,10 @@ void Renderer::AddSceneObject(RenderModel& obj)
 
 
 
-Mesh RenderModel::CreatePolygonMesh(std::vector<Vec3>& corners, Color color)
+Mesh RenderModel::CreatePolygonMesh(Vec3* corners, int count, Color color)
 {
 	Mesh mesh = {};
+	if (count < 8) return mesh;
 
 	mesh.vertexCount = 8;
 	mesh.triangleCount = 12;
@@ -341,12 +342,12 @@ Mesh RenderModel::CreatePolygonMesh(std::vector<Vec3>& corners, Color color)
 	}
 
 	unsigned short idx[] = {
-		0,2,1,  1,2,3,   // bottom  (y min)
-		4,5,6,  5,7,6,   // top     (y max)
-		0,1,4,  1,5,4,   // front   (z min)
-		2,6,3,  3,6,7,   // back    (z max)
-		0,4,2,  2,4,6,   // left    (x min)
-		1,3,5,  3,7,5,   // right   (x max)
+		0,2,1,  1,2,3,   // bottom
+		4,5,6,  5,7,6,   // top
+		0,1,4,  1,5,4,   // front
+		2,6,3,  3,6,7,   // back
+		0,4,2,  2,4,6,   // left
+		1,3,5,  3,7,5,   // right
 	};
 	memcpy(mesh.indices, idx, sizeof(idx));
 
@@ -384,6 +385,18 @@ RenderModel RenderModel::BuildFromShape(Cacti::Body body, Cacti::Shape* shape)
 
 	else if (shape->GetType() == Cacti::Shape::ShapeType::CONVEX)
 	{
+		Cacti::Convex* convexShape = (Cacti::Convex*)shape;
+		const Cacti::Bounds& b = convexShape->bounds;
+		Vec3 corners[8] = {
+			Vec3(b.mins.x, b.mins.y, b.mins.z),  // 0: -x -y -z
+			Vec3(b.maxs.x, b.mins.y, b.mins.z),  // 1: +x -y -z
+			Vec3(b.mins.x, b.mins.y, b.maxs.z),  // 2: -x -y +z
+			Vec3(b.maxs.x, b.mins.y, b.maxs.z),  // 3: +x -y +z
+			Vec3(b.mins.x, b.maxs.y, b.mins.z),  // 4: -x +y -z
+			Vec3(b.maxs.x, b.maxs.y, b.mins.z),  // 5: +x +y -z
+			Vec3(b.mins.x, b.maxs.y, b.maxs.z),  // 6: -x +y +z
+			Vec3(b.maxs.x, b.maxs.y, b.maxs.z),  // 7: +x +y +z
+		};
 		static const Color colorList[] = {
 LIGHTGRAY, GRAY, DARKGRAY, YELLOW, GOLD, ORANGE, PINK, RED, MAROON,
 GREEN, LIME, DARKGREEN, SKYBLUE, BLUE, DARKBLUE, PURPLE, VIOLET,
@@ -398,15 +411,8 @@ DARKPURPLE, BEIGE, BROWN, DARKBROWN, WHITE, BLACK, MAGENTA, RAYWHITE
 		Color randomColor = colorList[dist(gen)];
 
 
-
-		Cacti::Convex* convexShape = (Cacti::Convex*)shape;
-
-		Model polygon = LoadModelFromMesh(CreatePolygonMesh(convexShape->points, randomColor));
-
+		Model polygon = LoadModelFromMesh(RenderModel::CreatePolygonMesh(corners, 8, randomColor));
 		Vector3 raylibPos = { body.position.x, body.position.y, body.position.z };
-
-
-
 		RenderModel polyObj{ polygon, randomColor, raylibPos };
 
 		return polyObj;
