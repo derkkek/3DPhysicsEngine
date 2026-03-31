@@ -383,39 +383,69 @@ RenderModel RenderModel::BuildFromShape(Cacti::Body body, Cacti::Shape* shape)
 		return sphereObj;
 	}
 
-	else if (shape->GetType() == Cacti::Shape::ShapeType::CONVEX)
-	{
-		Cacti::Convex* convexShape = (Cacti::Convex*)shape;
-		const Cacti::Bounds& b = convexShape->bounds;
-		Vec3 corners[8] = {
-			Vec3(b.mins.x, b.mins.y, b.mins.z),  // 0: -x -y -z
-			Vec3(b.maxs.x, b.mins.y, b.mins.z),  // 1: +x -y -z
-			Vec3(b.mins.x, b.mins.y, b.maxs.z),  // 2: -x -y +z
-			Vec3(b.maxs.x, b.mins.y, b.maxs.z),  // 3: +x -y +z
-			Vec3(b.mins.x, b.maxs.y, b.mins.z),  // 4: -x +y -z
-			Vec3(b.maxs.x, b.maxs.y, b.mins.z),  // 5: +x +y -z
-			Vec3(b.mins.x, b.maxs.y, b.maxs.z),  // 6: -x +y +z
-			Vec3(b.maxs.x, b.maxs.y, b.maxs.z),  // 7: +x +y +z
-		};
-		static const Color colorList[] = {
-LIGHTGRAY, GRAY, DARKGRAY, YELLOW, GOLD, ORANGE, PINK, RED, MAROON,
-GREEN, LIME, DARKGREEN, SKYBLUE, BLUE, DARKBLUE, PURPLE, VIOLET,
-DARKPURPLE, BEIGE, BROWN, DARKBROWN, WHITE, BLACK, MAGENTA, RAYWHITE
-		};
-		static const size_t colorCount = sizeof(colorList) / sizeof(colorList[0]);
+	else if (shape->GetType() == Cacti::Shape::CONVEX) {
+		const Cacti::Convex* shapeConvex = (const Cacti::Convex*)shape;
 
-		static std::random_device rd;
-		static std::mt19937 gen(rd());
-		static std::uniform_int_distribution<size_t> dist(0, colorCount - 1);
-
-		Color randomColor = colorList[dist(gen)];
+		RenderModel convex{};
 
 
-		Model polygon = LoadModelFromMesh(RenderModel::CreatePolygonMesh(corners, 8, randomColor));
-		Vector3 raylibPos = { body.position.x, body.position.y, body.position.z };
-		RenderModel polyObj{ polygon, randomColor, raylibPos };
+		// Build the connected convex hull from the points
+		std::vector< Vec3 > hullPts;
+		std::vector< Cacti::Shape::tri > hullTris;
+		Cacti::Shape::BuildConvexHull(shapeConvex->points, hullPts, hullTris);
 
-		return polyObj;
+		// Calculate smoothed normals
+		std::vector< Vec3 > normals;
+		normals.reserve(hullPts.size());
+		for (int i = 0; i < hullPts.size(); i++) {
+			Vec3 norm(0.0f);
+
+			for (int t = 0; t < hullTris.size(); t++) {
+				const tri& tri = hullTris[t];
+				if (i != tri.a && i != tri.b && i != tri.c) {
+					continue;
+				}
+
+				const Vec3& a = hullPts[tri.a];
+				const Vec3& b = hullPts[tri.b];
+				const Vec3& c = hullPts[tri.c];
+
+				Vec3 ab = b - a;
+				Vec3 ac = c - a;
+				norm += ab.Cross(ac);
+			}
+
+			norm.Normalize();
+			normals.push_back(norm);
+		}
+
+		convex.vertices.reserve(hullPts.size());
+
+		Mesh mesh{};
+		for (int i = 0; i < hullPts.size(); i++) 
+		{
+
+			mesh.vertices[3 * i] = hullPts[i].x;
+			mesh.vertices[3 * i + 1] = hullPts[i].y;
+			mesh.vertices[3 * i + 2] = hullPts[i].z;
+
+			Vec3 norm = normals[i];
+			norm.Normalize();
+
+			mesh.normals[3 * i] = norm[0];
+			mesh.vertices[3 * i + 1] = norm[1];
+			mesh.vertices[3 * i + 2] = norm[2];
+			mesh.vertices[3 * i + 3] = (0.0f);
+			Vec3 vertex = { shapeConvex->points[i].x, shapeConvex->points[i].y,shapeConvex->points[i].z};
+			mesh.vertices.push_back(vertex);
+		}
+
+		mesh.indices.reserve(hullTris.size() * 3);
+		for (int i = 0; i < hullTris.size(); i++) {
+			mesh.indices.push_back(hullTris[i].a);
+			mesh.indices.push_back(hullTris[i].b);
+			mesh.indices.push_back(hullTris[i].c);
+		}
 	}
 
 	return RenderModel();

@@ -105,8 +105,8 @@ namespace Cacti
 		body.invMass = 1.0f;
 		body.elasticity = 0.5f;
 		body.friction = 0.5f;
-		//FillDiamond();
-		body.shape = new Convex(Cacti::BoxHead, sizeof(Cacti::BoxHead) / sizeof(Vec3));
+		FillDiamond();
+		body.shape = new Convex(Cacti::Diamond, sizeof(Cacti::Diamond) / sizeof(Vec3));
 		bodies.push_back(body);
 
 		//AddStandardSandBox(bodies);

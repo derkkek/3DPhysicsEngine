@@ -24,6 +24,10 @@ public:
 
 	Vector3 position;
 	Quaternion orientation;
+
+	std::vector<Vec3> vertices;
+	std::vector<int> indices;
+
 	RenderModel() = default;
 	RenderModel(Model& model, Color color, Vector3 pos);
 	void Draw();

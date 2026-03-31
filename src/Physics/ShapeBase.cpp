@@ -1,7 +1,7 @@
 #include "ShapeBase.h"
-
 namespace Cacti
 {
+
 	Vec3 Sphere::Support(const Vec3& dir, const Vec3& pos, const Quat& orient, const float bias) const
 	{
 		return (pos + dir * (radius + bias));
@@ -172,10 +172,6 @@ namespace Cacti
 
 
 
-
-
-	//Following functions are Convex shape functions.
-
 	struct tri {
 		int a;
 		int b;
@@ -189,6 +185,10 @@ namespace Cacti
 			return ((a == rhs.a && b == rhs.b) || (a == rhs.b && b == rhs.a));
 		}
 	};
+
+
+	//Following functions are Convex shape functions.
+
 
 	int FindPointFurthestInDir(const Vec3* pts, const int num, const Vec3& dir) {
 		int maxIdx = 0;

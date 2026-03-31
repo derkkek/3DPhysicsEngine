@@ -8,6 +8,7 @@ namespace Cacti
 	class Shape
 	{
 	public:
+
 		enum ShapeType
 		{
 			SPHERE,
