@@ -5,9 +5,29 @@
 #include "Math/Quat.h"
 namespace Cacti
 {
+	struct tri {
+		int a;
+		int b;
+		int c;
+	};
+	struct Edge {
+		int a;
+		int b;
+
+		bool operator == (const Edge& rhs) const {
+			return ((a == rhs.a && b == rhs.b) || (a == rhs.b && b == rhs.a));
+		}
+	};
+
+	void BuildConvexHull(
+		const std::vector<Vec3>& verts,
+		std::vector<Vec3>& hullPts,
+		std::vector<tri>& hullTris);
 	class Shape
 	{
 	public:
+
+
 
 		enum ShapeType
 		{

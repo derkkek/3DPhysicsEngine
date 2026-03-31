@@ -172,19 +172,6 @@ namespace Cacti
 
 
 
-	struct tri {
-		int a;
-		int b;
-		int c;
-	};
-	struct Edge {
-		int a;
-		int b;
-
-		bool operator == (const Edge& rhs) const {
-			return ((a == rhs.a && b == rhs.b) || (a == rhs.b && b == rhs.a));
-		}
-	};
 
 
 	//Following functions are Convex shape functions.
@@ -253,7 +240,7 @@ namespace Cacti
 	}
 
 
-	void BuildTetrahedron(const Vec3* verts, const int num, std::vector< Vec3 >& hullPts, std::vector< tri >& hullTris) {
+	void BuildTetrahedron(const Vec3* verts, const int num, std::vector< Vec3 >& hullPts, std::vector< Cacti::tri >& hullTris) {
 		hullPts.clear();
 		hullTris.clear();
 
@@ -591,7 +578,7 @@ namespace Cacti
 		return tensor;
 	}
 
-	void BuildConvexHull(const std::vector< Vec3 >& verts, std::vector< Vec3 >& hullPts, std::vector< tri >& hullTris) {
+	void Cacti::BuildConvexHull(const std::vector< Vec3 >& verts, std::vector< Vec3 >& hullPts, std::vector< tri >& hullTris) {
 		if (verts.size() < 4) {
 			return;
 		}

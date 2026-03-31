@@ -288,8 +288,9 @@ void Renderer::Update()
 			DrawBoundingBox(bb, GREEN);
 		}
 	}
-
-
+	DrawRay(Ray(Vector3{ 0,0,0 }, Vector3{ 1, 0, 0 }), RED);
+	DrawRay(Ray(Vector3{ 0,0,0 }, Vector3{ 0, 1, 0 }), GREEN);
+	DrawRay(Ray(Vector3{ 0,0,0 }, Vector3{ 0, 0, 1 }), BLUE);
 
 	EndMode3D();
 	DrawFPS(10, 10);
@@ -386,66 +387,78 @@ RenderModel RenderModel::BuildFromShape(Cacti::Body body, Cacti::Shape* shape)
 	else if (shape->GetType() == Cacti::Shape::CONVEX) {
 		const Cacti::Convex* shapeConvex = (const Cacti::Convex*)shape;
 
-		RenderModel convex{};
+		// Build the convex hull from the points
+		std::vector<Vec3> hullPts;
+		std::vector<Cacti::tri> hullTris;
+		Cacti::BuildConvexHull(shapeConvex->points, hullPts, hullTris);
 
-
-		// Build the connected convex hull from the points
-		std::vector< Vec3 > hullPts;
-		std::vector< Cacti::Shape::tri > hullTris;
-		Cacti::Shape::BuildConvexHull(shapeConvex->points, hullPts, hullTris);
-
-		// Calculate smoothed normals
-		std::vector< Vec3 > normals;
+		// Calculate smoothed normals per vertex
+		std::vector<Vec3> normals;
 		normals.reserve(hullPts.size());
-		for (int i = 0; i < hullPts.size(); i++) {
+		for (int i = 0; i < (int)hullPts.size(); i++) {
 			Vec3 norm(0.0f);
-
-			for (int t = 0; t < hullTris.size(); t++) {
-				const tri& tri = hullTris[t];
-				if (i != tri.a && i != tri.b && i != tri.c) {
+			for (int t = 0; t < (int)hullTris.size(); t++) {
+				const Cacti::tri& tri = hullTris[t];
+				if (i != tri.a && i != tri.b && i != tri.c)
 					continue;
-				}
-
 				const Vec3& a = hullPts[tri.a];
 				const Vec3& b = hullPts[tri.b];
 				const Vec3& c = hullPts[tri.c];
-
 				Vec3 ab = b - a;
 				Vec3 ac = c - a;
 				norm += ab.Cross(ac);
 			}
-
 			norm.Normalize();
 			normals.push_back(norm);
 		}
 
-		convex.vertices.reserve(hullPts.size());
+		int vertCount = (int)hullPts.size();
+		int indexCount = (int)hullTris.size() * 3;
 
-		Mesh mesh{};
-		for (int i = 0; i < hullPts.size(); i++) 
-		{
+		Mesh mesh = {};
+		mesh.vertexCount = vertCount;
+		mesh.triangleCount = (int)hullTris.size();
 
-			mesh.vertices[3 * i] = hullPts[i].x;
-			mesh.vertices[3 * i + 1] = hullPts[i].y;
-			mesh.vertices[3 * i + 2] = hullPts[i].z;
+		mesh.vertices = (float*)RL_MALLOC(vertCount * 3 * sizeof(float));
+		mesh.normals = (float*)RL_MALLOC(vertCount * 3 * sizeof(float));
+		mesh.texcoords = (float*)RL_MALLOC(vertCount * 2 * sizeof(float));
+		mesh.indices = (unsigned short*)RL_MALLOC(indexCount * sizeof(unsigned short));
 
-			Vec3 norm = normals[i];
-			norm.Normalize();
+		for (int i = 0; i < vertCount; i++) {
+			mesh.vertices[i * 3 + 0] = hullPts[i].x;
+			mesh.vertices[i * 3 + 1] = hullPts[i].y;
+			mesh.vertices[i * 3 + 2] = hullPts[i].z;
 
-			mesh.normals[3 * i] = norm[0];
-			mesh.vertices[3 * i + 1] = norm[1];
-			mesh.vertices[3 * i + 2] = norm[2];
-			mesh.vertices[3 * i + 3] = (0.0f);
-			Vec3 vertex = { shapeConvex->points[i].x, shapeConvex->points[i].y,shapeConvex->points[i].z};
-			mesh.vertices.push_back(vertex);
+			mesh.normals[i * 3 + 0] = normals[i].x;
+			mesh.normals[i * 3 + 1] = normals[i].y;
+			mesh.normals[i * 3 + 2] = normals[i].z;
+
+			mesh.texcoords[i * 2 + 0] = 0.0f;
+			mesh.texcoords[i * 2 + 1] = 0.0f;
 		}
 
-		mesh.indices.reserve(hullTris.size() * 3);
-		for (int i = 0; i < hullTris.size(); i++) {
-			mesh.indices.push_back(hullTris[i].a);
-			mesh.indices.push_back(hullTris[i].b);
-			mesh.indices.push_back(hullTris[i].c);
+		for (int i = 0; i < (int)hullTris.size(); i++) {
+			mesh.indices[i * 3 + 0] = (unsigned short)hullTris[i].a;
+			mesh.indices[i * 3 + 1] = (unsigned short)hullTris[i].b;
+			mesh.indices[i * 3 + 2] = (unsigned short)hullTris[i].c;
 		}
+
+		UploadMesh(&mesh, false);
+		Model model = LoadModelFromMesh(mesh);
+
+		static const Color colorList[] = {
+			LIGHTGRAY, GRAY, DARKGRAY, YELLOW, GOLD, ORANGE, PINK, RED, MAROON,
+			GREEN, LIME, DARKGREEN, SKYBLUE, BLUE, DARKBLUE, PURPLE, VIOLET,
+			DARKPURPLE, BEIGE, BROWN, DARKBROWN, WHITE, BLACK, MAGENTA, RAYWHITE
+		};
+		static const size_t colorCount = sizeof(colorList) / sizeof(colorList[0]);
+		static std::random_device rd;
+		static std::mt19937 gen(rd());
+		static std::uniform_int_distribution<size_t> dist(0, colorCount - 1);
+		Color randomColor = colorList[dist(gen)];
+
+		Vector3 raylibPos = { body.position.x, body.position.y, body.position.z };
+		return RenderModel(model, randomColor, raylibPos);
 	}
 
 	return RenderModel();

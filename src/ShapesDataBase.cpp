@@ -135,19 +135,19 @@ namespace Cacti
 	Vec3 Diamond[7 * 8];
 	void FillDiamond() {
 		Vec3 pts[4 + 4];
-		pts[0] = Vec3(0.1f, 0, -1);
+		pts[0] = Vec3(0.1f, -1, 0);
 		pts[1] = Vec3(1, 0, 0);
-		pts[2] = Vec3(1, 0, 0.1f);
-		pts[3] = Vec3(0.4f, 0, 0.4f);
+		pts[2] = Vec3(1, 0.1f, 0);
+		pts[3] = Vec3(0.4f, 0.4f, 0);
 
 		const float pi = acosf(-1.0f);
-		const Quat quatHalf(Vec3(0, 0, 1), 2.0f * pi * 0.125f * 0.5f);
-		pts[4] = Vec3(0.8f, 0, 0.3f);
+		const Quat quatHalf(Vec3(0, 1, 0), 2.0f * pi * 0.125f * 0.5f);
+		pts[4] = Vec3(0.8f, 0.3, 0);
 		pts[4] = quatHalf.RotatePoint(pts[4]);
 		pts[5] = quatHalf.RotatePoint(pts[1]);
 		pts[6] = quatHalf.RotatePoint(pts[2]);
 
-		const Quat quat(Vec3(0, 0, 1), 2.0f * pi * 0.125f);
+		const Quat quat(Vec3(0, 1, 0), 2.0f * pi * 0.125f);
 		int idx = 0;
 		for (int i = 0; i < 7; i++) {
 			Diamond[idx] = pts[i];
