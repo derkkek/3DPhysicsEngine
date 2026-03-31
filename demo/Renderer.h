@@ -27,6 +27,7 @@ public:
 	RenderModel() = default;
 	RenderModel(Model& model, Color color, Vector3 pos);
 	void Draw();
+	static Mesh CreatePolygonMesh(std::vector<Vec3>& corners, Color color);
 };
 
 

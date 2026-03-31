@@ -2,6 +2,7 @@
 #include <vector>
 #include "./Physics/Body.h"
 #include "./Physics/ShapeBase.h"
+#include "ShapesDataBase.h"
 #include "./Math/Vector.h"
 #include "./Math/Quat.h"
 #include "Intersect.h"
@@ -16,7 +17,7 @@ namespace Cacti
 		void Reset();
 		void Initialize();
 		void Update(const float dt);
-
+		void AddStandardSandBox(std::vector< Body >& bodies);
 		std::vector<Body> bodies;
 
 		const int MAX_BODIES = 256;

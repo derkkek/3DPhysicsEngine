@@ -315,6 +315,46 @@ void Renderer::AddSceneObject(RenderModel& obj)
 }
 
 
+
+Mesh RenderModel::CreatePolygonMesh(std::vector<Vec3>& corners, Color color)
+{
+	Mesh mesh = {};
+
+	mesh.vertexCount = 8;
+	mesh.triangleCount = 12;
+
+	mesh.vertices = (float*)RL_MALLOC(8 * 3 * sizeof(float));
+	mesh.normals = (float*)RL_MALLOC(8 * 3 * sizeof(float));
+	mesh.texcoords = (float*)RL_MALLOC(8 * 2 * sizeof(float));
+	mesh.indices = (unsigned short*)RL_MALLOC(36 * sizeof(unsigned short));
+
+	for (int i = 0; i < 8; i++)
+	{
+		mesh.vertices[3 * i] = corners[i].x;
+		mesh.vertices[3 * i + 1] = corners[i].y;
+		mesh.vertices[3 * i + 2] = corners[i].z;
+		mesh.normals[3 * i] = 0.0f;
+		mesh.normals[3 * i + 1] = 1.0f;
+		mesh.normals[3 * i + 2] = 0.0f;
+		mesh.texcoords[2 * i] = 0.0f;
+		mesh.texcoords[2 * i + 1] = 0.0f;
+	}
+
+	unsigned short idx[] = {
+		0,2,1,  1,2,3,   // bottom  (y min)
+		4,5,6,  5,7,6,   // top     (y max)
+		0,1,4,  1,5,4,   // front   (z min)
+		2,6,3,  3,6,7,   // back    (z max)
+		0,4,2,  2,4,6,   // left    (x min)
+		1,3,5,  3,7,5,   // right   (x max)
+	};
+	memcpy(mesh.indices, idx, sizeof(idx));
+
+	UploadMesh(&mesh, false);
+	return mesh;
+}
+
+
 RenderModel RenderModel::BuildFromShape(Cacti::Body body, Cacti::Shape* shape)
 {
 	if (shape->GetType() == Cacti::Shape::ShapeType::SPHERE)
@@ -342,8 +382,39 @@ RenderModel RenderModel::BuildFromShape(Cacti::Body body, Cacti::Shape* shape)
 		return sphereObj;
 	}
 
+	else if (shape->GetType() == Cacti::Shape::ShapeType::CONVEX)
+	{
+		static const Color colorList[] = {
+LIGHTGRAY, GRAY, DARKGRAY, YELLOW, GOLD, ORANGE, PINK, RED, MAROON,
+GREEN, LIME, DARKGREEN, SKYBLUE, BLUE, DARKBLUE, PURPLE, VIOLET,
+DARKPURPLE, BEIGE, BROWN, DARKBROWN, WHITE, BLACK, MAGENTA, RAYWHITE
+		};
+		static const size_t colorCount = sizeof(colorList) / sizeof(colorList[0]);
+
+		static std::random_device rd;
+		static std::mt19937 gen(rd());
+		static std::uniform_int_distribution<size_t> dist(0, colorCount - 1);
+
+		Color randomColor = colorList[dist(gen)];
+
+
+
+		Cacti::Convex* convexShape = (Cacti::Convex*)shape;
+
+		Model polygon = LoadModelFromMesh(CreatePolygonMesh(convexShape->points, randomColor));
+
+		Vector3 raylibPos = { body.position.x, body.position.y, body.position.z };
+
+
+
+		RenderModel polyObj{ polygon, randomColor, raylibPos };
+
+		return polyObj;
+	}
+
 	return RenderModel();
 }
+
 
 RenderModel::RenderModel(Model& model, Color color, Vector3 pos)
 	:model(model), color(color), position(pos)
@@ -362,3 +433,4 @@ void RenderModel::Draw()
 
 	DrawModelEx(this->model, this->position, raylibAxis, angleDeg, Vector3One(), this->color);
 }
+

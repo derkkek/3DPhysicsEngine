@@ -14,6 +14,61 @@ namespace Cacti
 	{
 	}
 
+	void World::AddStandardSandBox(std::vector< Body >& bodies) {
+		Body body;
+
+		body.position = Vec3(0, 0, 0);
+		body.orientation = Quat(0, 0, 0, 1);
+		body.linearVelocity.Zero();
+		body.angularVelocity.Zero();
+		body.invMass = 0.0f;
+		body.elasticity = 0.5f;
+		body.friction = 0.5f;
+		body.shape = new Box(BoxGround, sizeof(BoxGround) / sizeof(Vec3));
+		bodies.push_back(body);
+
+		body.position = Vec3(50, 0, 0);
+		body.orientation = Quat(0, 0, 0, 1);
+		body.linearVelocity.Zero();
+		body.angularVelocity.Zero();
+		body.invMass = 0.0f;
+		body.elasticity = 0.5f;
+		body.friction = 0.0f;
+		body.shape = new Box(BoxWall0, sizeof(BoxWall0) / sizeof(Vec3));
+		bodies.push_back(body);
+
+		body.position = Vec3(-50, 0, 0);
+		body.orientation = Quat(0, 0, 0, 1);
+		body.linearVelocity.Zero();
+		body.angularVelocity.Zero();
+		body.invMass = 0.0f;
+		body.elasticity = 0.5f;
+		body.friction = 0.0f;
+		body.shape = new Box(BoxWall0, sizeof(BoxWall0) / sizeof(Vec3));
+		bodies.push_back(body);
+
+		body.position = Vec3(0, 25, 0);
+		body.orientation = Quat(0, 0, 0, 1);
+		body.linearVelocity.Zero();
+		body.angularVelocity.Zero();
+		body.invMass = 0.0f;
+		body.elasticity = 0.5f;
+		body.friction = 0.0f;
+		body.shape = new Box(BoxWall1, sizeof(BoxWall1) / sizeof(Vec3));
+		bodies.push_back(body);
+
+		body.position = Vec3(0, -25, 0);
+		body.orientation = Quat(0, 0, 0, 1);
+		body.linearVelocity.Zero();
+		body.angularVelocity.Zero();
+		body.invMass = 0.0f;
+		body.elasticity = 0.5f;
+		body.friction = 0.0f;
+		body.shape = new Box(BoxWall1, sizeof(BoxWall1) / sizeof(Vec3));
+		bodies.push_back(body);
+	}
+
+
 	int CompareContacts(const void* p1, const void* p2) {
 		Contact a = *(Contact*)p1;
 		Contact b = *(Contact*)p2;
@@ -32,37 +87,29 @@ namespace Cacti
 	void World::Initialize()
 	{
 		Body body;
-		for(int x = 0; x < 6; x++) {
-			for(int z = 0; z < 6; z++) {
-				float radius  = 0.5 ;
-				float xx = float(x - 1) * radius * 1.5f;
-				float zz = float(z - 1) * radius * 1.5f;
-				body.position = Vec3(xx, 10, zz);
-				body.orientation = Quat(0, 0, 0, 1);
-				body.linearVelocity.Zero();
-				body.invMass = 1.0f;
-				body.elasticity = 0.5f;
-				body.friction= 0.5f;
-				body.shape = new Sphere(radius);
-				bodies.push_back(body);
-			}
-		}
 
-		for (int x = 0; x < 3; x++) {
-			for (int z = 0; z < 3; z++) {
-				float radius = 80;
-				float xx = float(x - 1) * radius * 0.25f;
-				float zz = float(z - 1) * radius * 0.25f;
-				body.position = Vec3(xx, -radius, zz);
-				body.orientation = Quat(0, 0, 0, 1);
-				body.linearVelocity.Zero();
-				body.invMass = 0.0f;
-				body.elasticity = 0.99f;
-				body.friction = 0.5f;
-				body.shape = new Sphere(radius);
-				bodies.push_back(body);
-			}
-		}
+		//body.position = Vec3(10, 3, 0);
+		//body.orientation = Quat(0, 0, 0, 1);
+		//body.linearVelocity = Vec3(0, 0, 0);
+		//body.angularVelocity = Vec3(0.0f, 0.0f, 0.0f);
+		//body.invMass = 1.0f;
+		//body.elasticity = 0.5f;
+		//body.friction = 0.5f;
+		//body.shape = new Sphere(0.5f);
+		//bodies.push_back(body);
+
+		body.position = Vec3(0, 0, 0);
+		body.orientation = Quat(0, 0, 0, 1);
+		body.linearVelocity = Vec3(0, 0, 0);
+		body.angularVelocity = Vec3(0, 0, 10);
+		body.invMass = 1.0f;
+		body.elasticity = 0.5f;
+		body.friction = 0.5f;
+		//FillDiamond();
+		body.shape = new Convex(Cacti::BoxSmall, sizeof(Cacti::BoxSmall) / sizeof(Vec3));
+		bodies.push_back(body);
+
+		//AddStandardSandBox(bodies);
 	}
 
 	void World::Update(const float dt)
@@ -73,7 +120,7 @@ namespace Cacti
 			float mass = 1 / bodies[i].invMass;
 			Vec3 impulseGravity = Vec3(0.0f, -10, 0.0f) * mass * dt;
 			bodies[i].shape->bounds.collided = false;
-			bodies[i].ApplyImpulse(bodies[i].position, impulseGravity);
+			//bodies[i].ApplyImpulse(bodies[i].position, impulseGravity);
 		}
 
 		// Broadphase
