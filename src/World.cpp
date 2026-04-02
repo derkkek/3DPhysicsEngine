@@ -100,11 +100,11 @@ namespace Cacti
 		//body.shape = new Sphere(0.5f);
 		//bodies.push_back(body);
 
-		body.position = Vec3(-10, 3, 0);
+		body.position = Vec3(0, 3, 0);
 		body.orientation = Quat(0, 0, 0, 1);
-		body.linearVelocity = Vec3(5, 0, 0);
+		body.linearVelocity = Vec3(0, 0, 0);
 		body.angularVelocity = Vec3(0, 0, 0);
-		body.invMass = 100.0f;
+		body.invMass = 1.0f;
 		body.elasticity = 0.2f;
 		body.friction = 0.5f;
 		body.shape = new Convex(Cacti::BoxUnit, sizeof(Cacti::BoxUnit) / sizeof(Vec3));

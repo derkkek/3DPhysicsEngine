@@ -2,51 +2,59 @@
 
 namespace Cacti
 {
-	void ResolveContact(Contact& contact)
-	{
-		Body* a = contact.bodyA;
-		Body* b = contact.bodyB;
-		
-		const Vec3 ptOnA = contact.ptOnA_WorldSpace;
-		const Vec3 ptOnB = contact.ptOnB_WorldSpace;
+	void ResolveContact(Contact& contact) {
+		Body* bodyA = contact.bodyA;
+		Body* bodyB = contact.bodyB;
 
-		const float invMassA = a->invMass;
-		const float invMassB = b->invMass;
+		const Vec3 ptOnA = bodyA->BodySpaceToWorldSpace(contact.ptOnA_LocalSpace);
+		const Vec3 ptOnB = bodyB->BodySpaceToWorldSpace(contact.ptOnB_LocalSpace);
 
-		const float elasticityA = a->elasticity;
-		const float elasticityB = b->elasticity;
-
+		const float elasticityA = bodyA->elasticity;
+		const float elasticityB = bodyB->elasticity;
 		const float elasticity = elasticityA * elasticityB;
 
-		const Mat3 invWorldInertiaA = a->GetInverseInertiaTensorBodySpace();
-		const Mat3 invWorldInertiaB = b->GetInverseInertiaTensorBodySpace();
+		const float invMassA = bodyA->invMass;
+		const float invMassB = bodyB->invMass;
+
+		const Mat3 invWorldInertiaA = bodyA->GetInverseInertiaTensorWorldSpace();
+		const Mat3 invWorldInertiaB = bodyB->GetInverseInertiaTensorWorldSpace();
 
 		const Vec3 n = contact.normal;
 
-		const Vec3 ra = ptOnA - a->GetCenterOfMassWorldSpace();
-		const Vec3 rb = ptOnB - b->GetCenterOfMassWorldSpace();
+		const Vec3 ra = ptOnA - bodyA->GetCenterOfMassWorldSpace();
+		const Vec3 rb = ptOnB - bodyB->GetCenterOfMassWorldSpace();
 
 		const Vec3 angularJA = (invWorldInertiaA * ra.Cross(n)).Cross(ra);
 		const Vec3 angularJB = (invWorldInertiaB * rb.Cross(n)).Cross(rb);
-
 		const float angularFactor = (angularJA + angularJB).Dot(n);
 
-		const Vec3 velA = a->linearVelocity + a->angularVelocity.Cross(ra);
-		const Vec3 velB = b->linearVelocity + b->angularVelocity.Cross(rb);
+		// Get the world space velocity of the motion and rotation
+		const Vec3 velA = bodyA->linearVelocity + bodyA->angularVelocity.Cross(ra);
+		const Vec3 velB = bodyB->linearVelocity + bodyB->angularVelocity.Cross(rb);
 
+		// Calculate the collision impulse
 		const Vec3 vab = velA - velB;
-		const float impulseJ = (1 + elasticity) * vab.Dot(n) / (invMassA + invMassB); //we solve collision only in the collision normal direction so we project relative velocity to collision normal. We don't need other directions.
-		const Vec3 vectorImpulseJ = n * impulseJ;
+		const float ImpulseJ = (1.0f + elasticity) * vab.Dot(n) / (invMassA + invMassB + angularFactor);
+		const Vec3 vectorImpulseJ = n * ImpulseJ;
 
-		a->ApplyImpulse(ptOnA, vectorImpulseJ * -1.0f);
-		b->ApplyImpulse(ptOnB, vectorImpulseJ * 1.0f);
+		bodyA->ApplyImpulse(ptOnA, vectorImpulseJ * -1.0f);
+		bodyB->ApplyImpulse(ptOnB, vectorImpulseJ * 1.0f);
 
-		const float frictionA = a->friction;
-		const float frictionB = b->friction;
+		//
+		// Calculate the impulse caused by friction
+		//
+
+		const float frictionA = bodyA->friction;
+		const float frictionB = bodyB->friction;
 		const float friction = frictionA * frictionB;
 
-		const Vec3 velNormal = n * n.Dot(vab);
-		const Vec3 velTang = vab - velNormal;
+		// Find the normal direction of the velocity with respect to the normal of the collision
+		const Vec3 velNorm = n * n.Dot(vab);
+
+		// Find the tangent direction of the velocity with respect to the normal of the collision
+		const Vec3 velTang = vab - velNorm;
+
+		// Get the tangential velocities relative to the other body
 		Vec3 relativeVelTang = velTang;
 		relativeVelTang.Normalize();
 
@@ -54,25 +62,26 @@ namespace Cacti
 		const Vec3 inertiaB = (invWorldInertiaB * rb.Cross(relativeVelTang)).Cross(rb);
 		const float invInertia = (inertiaA + inertiaB).Dot(relativeVelTang);
 
-		const float reducedMass = 1.0f / (a->invMass + b->invMass + invInertia);
+		// Calculate the tangential impulse for friction
+		const float reducedMass = 1.0f / (bodyA->invMass + bodyB->invMass + invInertia);
 		const Vec3 impulseFriction = velTang * reducedMass * friction;
 
-		a->ApplyImpulse(ptOnA, impulseFriction * -1.0f);
-		b->ApplyImpulse(ptOnB, impulseFriction * 1.0f);
+		// Apply kinetic friction
+		bodyA->ApplyImpulse(ptOnA, impulseFriction * -1.0f);
+		bodyB->ApplyImpulse(ptOnB, impulseFriction * 1.0f);
 
-		// also move colliding objects to just outside of each other.
-
-		if (contact.timeOfImpact == 0.0f)
-		{
+		//
+		// Let's also move our colliding objects to just outside of each other (projection method)
+		//
+		if (0.0f == contact.timeOfImpact) {
 			const Vec3 ds = ptOnB - ptOnA;
 
 			const float tA = invMassA / (invMassA + invMassB);
 			const float tB = invMassB / (invMassA + invMassB);
 
-			a->position += ds * tA;
-			b->position -= ds * tB;
+			bodyA->position += ds * tA;
+			bodyB->position -= ds * tB;
 		}
-
 	}
 
 }
