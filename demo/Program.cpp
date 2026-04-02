@@ -12,6 +12,8 @@
 Program::Program()
 	:running(true), engine()
 {
+	//Cacti::FillDiamond();
+
 	Init();
 	engine.Init();
 	renderer.Init();
