@@ -17,7 +17,7 @@ namespace Cacti
 		void Reset();
 		void Initialize();
 		void Update(const float dt);
-		void AddStandardSandBox(std::vector< Body >& bodies);
+		void AddStandardSandBox();
 		std::vector<Body> bodies;
 
 		const int MAX_BODIES = 256;

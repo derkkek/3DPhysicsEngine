@@ -14,7 +14,7 @@ namespace Cacti
 	{
 	}
 
-	void World::AddStandardSandBox(std::vector< Body >& bodies) {
+	void World::AddStandardSandBox() {
 		Body body;
 
 		body.position = Vec3(0, 0, 0);
@@ -25,7 +25,7 @@ namespace Cacti
 		body.elasticity = 0.5f;
 		body.friction = 0.5f;
 		body.shape = new Box(BoxGround, sizeof(BoxGround) / sizeof(Vec3));
-		bodies.push_back(body);
+		this->bodies.push_back(body);
 
 		body.position = Vec3(50, 0, 0);
 		body.orientation = Quat(0, 0, 0, 1);
@@ -35,7 +35,7 @@ namespace Cacti
 		body.elasticity = 0.5f;
 		body.friction = 0.0f;
 		body.shape = new Box(BoxWall0, sizeof(BoxWall0) / sizeof(Vec3));
-		bodies.push_back(body);
+		this->bodies.push_back(body);
 
 		body.position = Vec3(-50, 0, 0);
 		body.orientation = Quat(0, 0, 0, 1);
@@ -45,9 +45,9 @@ namespace Cacti
 		body.elasticity = 0.5f;
 		body.friction = 0.0f;
 		body.shape = new Box(BoxWall0, sizeof(BoxWall0) / sizeof(Vec3));
-		bodies.push_back(body);
+		this->bodies.push_back(body);
 
-		body.position = Vec3(0, 25, 0);
+		body.position = Vec3(0, 0, 25);
 		body.orientation = Quat(0, 0, 0, 1);
 		body.linearVelocity.Zero();
 		body.angularVelocity.Zero();
@@ -55,9 +55,9 @@ namespace Cacti
 		body.elasticity = 0.5f;
 		body.friction = 0.0f;
 		body.shape = new Box(BoxWall1, sizeof(BoxWall1) / sizeof(Vec3));
-		bodies.push_back(body);
+		this->bodies.push_back(body);
 
-		body.position = Vec3(0, -25, 0);
+		body.position = Vec3(0, 0, -25);
 		body.orientation = Quat(0, 0, 0, 1);
 		body.linearVelocity.Zero();
 		body.angularVelocity.Zero();
@@ -65,7 +65,7 @@ namespace Cacti
 		body.elasticity = 0.5f;
 		body.friction = 0.0f;
 		body.shape = new Box(BoxWall1, sizeof(BoxWall1) / sizeof(Vec3));
-		bodies.push_back(body);
+		this->bodies.push_back(body);
 	}
 
 
@@ -88,15 +88,15 @@ namespace Cacti
 	{
 		Body body;
 
-		//body.position = Vec3(10, 3, 0);
-		//body.orientation = Quat(0, 0, 0, 1);
-		//body.linearVelocity = Vec3(0, 0, 0);
-		//body.angularVelocity = Vec3(0.0f, 0.0f, 0.0f);
-		//body.invMass = 1.0f;
-		//body.elasticity = 0.5f;
-		//body.friction = 0.5f;
-		//body.shape = new Sphere(0.5f);
-		//bodies.push_back(body);
+		body.position = Vec3(10, 3, 0);
+		body.orientation = Quat(0, 0, 0, 1);
+		body.linearVelocity = Vec3(0, 0, 0);
+		body.angularVelocity = Vec3(0.0f, 0.0f, 0.0f);
+		body.invMass = 1.0f;
+		body.elasticity = 0.5f;
+		body.friction = 0.5f;
+		body.shape = new Sphere(0.5f);
+		bodies.push_back(body);
 
 		body.position = Vec3(0, 0, 0);
 		body.orientation = Quat(0, 0, 0, 1);
@@ -105,11 +105,11 @@ namespace Cacti
 		body.invMass = 1.0f;
 		body.elasticity = 0.5f;
 		body.friction = 0.5f;
-		FillDiamond();
-		body.shape = new Convex(Cacti::Diamond, sizeof(Cacti::Diamond) / sizeof(Vec3));
-		bodies.push_back(body);
+		//FillDiamond();
+		//body.shape = new Convex(Cacti::Diamond, sizeof(Cacti::Diamond) / sizeof(Vec3));
+		//bodies.push_back(body);
 
-		//AddStandardSandBox(bodies);
+		AddStandardSandBox();
 	}
 
 	void World::Update(const float dt)

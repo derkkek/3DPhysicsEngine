@@ -288,9 +288,9 @@ void Renderer::Update()
 			DrawBoundingBox(bb, GREEN);
 		}
 	}
-	DrawRay(Ray(Vector3{ 0,0,0 }, Vector3{ 1, 0, 0 }), RED);
-	DrawRay(Ray(Vector3{ 0,0,0 }, Vector3{ 0, 1, 0 }), GREEN);
-	DrawRay(Ray(Vector3{ 0,0,0 }, Vector3{ 0, 0, 1 }), BLUE);
+	//DrawRay(Ray(Vector3{ 0,0,0 }, Vector3{ 1, 0, 0 }), RED);
+	//DrawRay(Ray(Vector3{ 0,0,0 }, Vector3{ 0, 1, 0 }), GREEN);
+	//DrawRay(Ray(Vector3{ 0,0,0 }, Vector3{ 0, 0, 1 }), BLUE);
 
 	EndMode3D();
 	DrawFPS(10, 10);
@@ -315,69 +315,28 @@ void Renderer::AddSceneObject(RenderModel& obj)
 	sceneObjects.emplace_back(obj);
 }
 
-
-
-Mesh RenderModel::CreatePolygonMesh(Vec3* corners, int count, Color color)
-{
-	Mesh mesh = {};
-	if (count < 8) return mesh;
-
-	mesh.vertexCount = 8;
-	mesh.triangleCount = 12;
-
-	mesh.vertices = (float*)RL_MALLOC(8 * 3 * sizeof(float));
-	mesh.normals = (float*)RL_MALLOC(8 * 3 * sizeof(float));
-	mesh.texcoords = (float*)RL_MALLOC(8 * 2 * sizeof(float));
-	mesh.indices = (unsigned short*)RL_MALLOC(36 * sizeof(unsigned short));
-
-	for (int i = 0; i < 8; i++)
-	{
-		mesh.vertices[3 * i] = corners[i].x;
-		mesh.vertices[3 * i + 1] = corners[i].y;
-		mesh.vertices[3 * i + 2] = corners[i].z;
-		mesh.normals[3 * i] = 0.0f;
-		mesh.normals[3 * i + 1] = 1.0f;
-		mesh.normals[3 * i + 2] = 0.0f;
-		mesh.texcoords[2 * i] = 0.0f;
-		mesh.texcoords[2 * i + 1] = 0.0f;
-	}
-
-	unsigned short idx[] = {
-		0,2,1,  1,2,3,   // bottom
-		4,5,6,  5,7,6,   // top
-		0,1,4,  1,5,4,   // front
-		2,6,3,  3,6,7,   // back
-		0,4,2,  2,4,6,   // left
-		1,3,5,  3,7,5,   // right
-	};
-	memcpy(mesh.indices, idx, sizeof(idx));
-
-	UploadMesh(&mesh, false);
-	return mesh;
-}
-
-
 RenderModel RenderModel::BuildFromShape(Cacti::Body body, Cacti::Shape* shape)
 {
+	static const Color colorList[] = {
+	LIGHTGRAY, GRAY, DARKGRAY, YELLOW, GOLD, ORANGE, PINK, RED, MAROON,
+	GREEN, LIME, DARKGREEN, SKYBLUE, BLUE, DARKBLUE, PURPLE, VIOLET,
+	DARKPURPLE, BEIGE, BROWN, DARKBROWN, WHITE, BLACK, MAGENTA, RAYWHITE
+	};
+	static const size_t colorCount = sizeof(colorList) / sizeof(colorList[0]);
+
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	static std::uniform_int_distribution<size_t> dist(0, colorCount - 1);
+
+
+
+
 	if (shape->GetType() == Cacti::Shape::ShapeType::SPHERE)
 	{
 		Cacti::Sphere* sphereShape = (Cacti::Sphere*)shape;
 		Model sphere = LoadModelFromMesh(GenMeshSphere(sphereShape->radius, 50, 50));
 		Vector3 raylibPos = { body.position.x, body.position.y, body.position.z };
-
-		static const Color colorList[] = {
-	   LIGHTGRAY, GRAY, DARKGRAY, YELLOW, GOLD, ORANGE, PINK, RED, MAROON,
-	   GREEN, LIME, DARKGREEN, SKYBLUE, BLUE, DARKBLUE, PURPLE, VIOLET,
-	   DARKPURPLE, BEIGE, BROWN, DARKBROWN, WHITE, BLACK, MAGENTA, RAYWHITE
-		};
-		static const size_t colorCount = sizeof(colorList) / sizeof(colorList[0]);
-
-		static std::random_device rd;
-		static std::mt19937 gen(rd());
-		static std::uniform_int_distribution<size_t> dist(0, colorCount - 1);
-
 		Color randomColor = colorList[dist(gen)];
-
 		RenderModel sphereObj{ sphere, randomColor, raylibPos };
 
 
@@ -445,16 +404,96 @@ RenderModel RenderModel::BuildFromShape(Cacti::Body body, Cacti::Shape* shape)
 
 		UploadMesh(&mesh, false);
 		Model model = LoadModelFromMesh(mesh);
+		Color randomColor = colorList[dist(gen)];
+		Vector3 raylibPos = { body.position.x, body.position.y, body.position.z };
+		return RenderModel(model, randomColor, raylibPos);
+	}
+	else if (shape->GetType() == Cacti::Shape::BOX)
+	{
+		const Cacti::Box* shapeBox = (const Cacti::Box*)shape;
 
-		static const Color colorList[] = {
-			LIGHTGRAY, GRAY, DARKGRAY, YELLOW, GOLD, ORANGE, PINK, RED, MAROON,
-			GREEN, LIME, DARKGREEN, SKYBLUE, BLUE, DARKBLUE, PURPLE, VIOLET,
-			DARKPURPLE, BEIGE, BROWN, DARKBROWN, WHITE, BLACK, MAGENTA, RAYWHITE
+		// use the physics box's actual 8 corner points directly
+		// this guarantees the mesh matches the physics shape exactly
+		Vec3 mn = shapeBox->bounds.mins;
+		Vec3 mx = shapeBox->bounds.maxs;
+
+		// 8 corners of the box in local space
+		Vec3 corners[8] = {
+			Vec3(mn.x, mn.y, mn.z),
+			Vec3(mx.x, mn.y, mn.z),
+			Vec3(mn.x, mx.y, mn.z),
+			Vec3(mx.x, mx.y, mn.z),
+			Vec3(mn.x, mn.y, mx.z),
+			Vec3(mx.x, mn.y, mx.z),
+			Vec3(mn.x, mx.y, mx.z),
+			Vec3(mx.x, mx.y, mx.z),
 		};
-		static const size_t colorCount = sizeof(colorList) / sizeof(colorList[0]);
-		static std::random_device rd;
-		static std::mt19937 gen(rd());
-		static std::uniform_int_distribution<size_t> dist(0, colorCount - 1);
+
+		// 6 faces, each as 2 triangles = 12 triangles = 36 indices
+		// each face has 4 unique vertices for correct normals
+		// 6 faces * 4 verts = 24 vertices total
+		int vertCount = 24;
+		int indexCount = 36;
+
+		Mesh mesh = {};
+		mesh.vertexCount = vertCount;
+		mesh.triangleCount = 12;
+		mesh.vertices = (float*)RL_MALLOC(vertCount * 3 * sizeof(float));
+		mesh.normals = (float*)RL_MALLOC(vertCount * 3 * sizeof(float));
+		mesh.texcoords = (float*)RL_MALLOC(vertCount * 2 * sizeof(float));
+		mesh.indices = (unsigned short*)RL_MALLOC(indexCount * sizeof(unsigned short));
+
+		// face definitions: each face = 4 corner indices + outward normal
+		struct Face {
+			int c[4];       // indices into corners[]
+			Vec3 normal;
+		};
+
+		Face faces[6] = {
+			{ {4,5,7,6}, Vec3(0, 0, 1) }, // front  +Z
+			{ {0,2,3,1}, Vec3(0, 0,-1) }, // back   -Z
+			{ {2,6,7,3}, Vec3(0, 1, 0) }, // top    +Y
+			{ {0,1,5,4}, Vec3(0,-1, 0) }, // bottom -Y
+			{ {1,3,7,5}, Vec3(1, 0, 0) }, // right  +
+			{ {0,4,6,2}, Vec3(-1, 0, 0) }, // left   -X
+		};
+
+		
+
+		for (int f = 0; f < 6; f++)
+		{
+			int baseVert = f * 4;
+
+			for (int v = 0; v < 4; v++)
+			{
+				Vec3 p = corners[faces[f].c[v]];
+				int idx = (baseVert + v) * 3;
+				mesh.vertices[idx + 0] = p.x;
+				mesh.vertices[idx + 1] = p.y;
+				mesh.vertices[idx + 2] = p.z;
+
+				mesh.normals[idx + 0] = faces[f].normal.x;
+				mesh.normals[idx + 1] = faces[f].normal.y;
+				mesh.normals[idx + 2] = faces[f].normal.z;
+
+				int uvIdx = (baseVert + v) * 2;
+				mesh.texcoords[uvIdx + 0] = (v == 1 || v == 3) ? 1.0f : 0.0f;
+				mesh.texcoords[uvIdx + 1] = (v == 2 || v == 3) ? 1.0f : 0.0f;
+			}
+
+			// two triangles per face
+			int baseIdx = f * 6;
+			mesh.indices[baseIdx + 0] = baseVert + 0;
+			mesh.indices[baseIdx + 1] = baseVert + 1;
+			mesh.indices[baseIdx + 2] = baseVert + 2;
+			mesh.indices[baseIdx + 3] = baseVert + 0;
+			mesh.indices[baseIdx + 4] = baseVert + 2;
+			mesh.indices[baseIdx + 5] = baseVert + 3;
+		}
+
+		UploadMesh(&mesh, false);
+		Model model = LoadModelFromMesh(mesh);
+
 		Color randomColor = colorList[dist(gen)];
 
 		Vector3 raylibPos = { body.position.x, body.position.y, body.position.z };

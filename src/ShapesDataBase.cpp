@@ -7,15 +7,15 @@ namespace Cacti
 	static const float h = 25;
 
 	Vec3 BoxGround[] = {
-		Vec3(-w,0, -h),
-		Vec3(w,0, -h),
-		Vec3(-w, 0, h),
-		Vec3(w, 0, h),
+		Vec3(-w, 0, -h),
+		Vec3(w, 0, -h),
+		Vec3(-w, 0,  h),
+		Vec3(w, 0,  h),
 
 		Vec3(-w,-1, -h),
 		Vec3(w,-1, -h),
-		Vec3(-w, -1, h),
-		Vec3(w, -1, h),
+		Vec3(-w,-1,  h),
+		Vec3(w,-1,  h),
 	};
 
 	Vec3 BoxWall0[] = {
