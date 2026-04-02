@@ -92,6 +92,16 @@ namespace Cacti
 
 		body.position = Vec3(10, 3, 0);
 		body.orientation = Quat(0, 0, 0, 1);
+		body.linearVelocity = Vec3(10, 0, 0);
+		body.angularVelocity = Vec3(0, 0, 0);
+		body.invMass = 1.0f;
+		body.elasticity = 1.0f;
+		body.friction = 0.5f;
+		body.shape = new Convex(Cacti::BoxSmall, sizeof(Cacti::BoxSmall) / sizeof(Vec3));
+		bodies.push_back(body);
+
+		body.position = Vec3(10, 3, 0);
+		body.orientation = Quat(0, 0, 0, 1);
 		body.linearVelocity = Vec3(-10, 0, 0);
 		body.angularVelocity = Vec3(0.0f, 0.0f, 0.0f);
 		body.invMass = 1.0f;
@@ -100,15 +110,7 @@ namespace Cacti
 		body.shape = new Sphere(0.5f);
 		bodies.push_back(body);
 
-		body.position = Vec3(-10, 30, 0);
-		body.orientation = Quat(0, 0, 0, 1);
-		body.linearVelocity = Vec3(10, 0, 0);
-		body.angularVelocity = Vec3(0, 0, 1);
-		body.invMass = 1.0f;
-		body.elasticity = 1.0f;
-		body.friction = 0.5f;
-		body.shape = new Convex(Cacti::BoxUnit, sizeof(Cacti::BoxUnit) / sizeof(Vec3));
-		bodies.push_back(body);
+
 
 		//body.shape = new Convex(Cacti::Diamond, sizeof(Cacti::Diamond) / sizeof(Vec3));
 		//bodies.push_back(body);
@@ -126,6 +128,10 @@ namespace Cacti
 			Vec3 impulseGravity = Vec3(0.0f, -10, 0.0f) * mass * dt;
 			bodies[i].shape->bounds.collided = false;
 			bodies[i].ApplyImpulse(bodies[i].position, impulseGravity);
+			if (i == 0)
+			{
+				std::cout << bodies[i].position.y << "\n";
+			}
 		}
 
 		// Broadphase

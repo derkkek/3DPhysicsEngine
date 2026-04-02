@@ -52,11 +52,20 @@ void Program::InitScene()
 
 void Program::Update()
 {
+	float elapsed = 0.0f;
+	const float startDelay = 2.0f;
+
 	while (!WindowShouldClose())
 	{
 		float dt = GetFrameTime();
-		engine.Update(dt);
-		renderer.Update();
+		elapsed += dt;
+
+		if (elapsed > startDelay)
+		{
+			engine.Update(dt);
+		}
+
+		renderer.Update();  // still render during the wait
 	}
 }
 
