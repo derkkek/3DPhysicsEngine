@@ -294,7 +294,6 @@ void Renderer::Update(ConvertedSceneData& convertedSceneData)
 
 		if (convertedSceneData.bbIndexCollided[i])
 		{
-
 			DrawBoundingBox(bb, RED);
 		}
 		else

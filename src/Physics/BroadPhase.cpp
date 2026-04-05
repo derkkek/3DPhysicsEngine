@@ -93,18 +93,29 @@ namespace Cacti
 		SweepAndPrune1D(bodies, num, finalPairs, dt_sec);
 
 		// Flagging collision of bounding boxes to debug rendering
-		for (const CollisionPair& cp : finalPairs) {
-			const int a = cp.a;
-			const int b = cp.b;
-			//if (a < 0 || a >= (int)bodies.size() || b < 0 || b >= (int)bodies.size()) continue;
 
-			// get world-space bounds for each body
-			Bounds ba = bodies[a].shape->GetBounds(bodies[a].position, bodies[a].orientation);
-			Bounds bb = bodies[b].shape->GetBounds(bodies[b].position, bodies[b].orientation);
+		/*in future if collisions behave weirdly followings could be the issue*/
+		for (const CollisionPair& cp : finalPairs) {
+			const Body& a = bodies[cp.a];
+			const Body& b = bodies[cp.b];
+
+			// Build the same expanded bounds SortBodiesBounds used
+			auto expandedBounds = [&](const Body& body) {
+				Bounds bounds = body.shape->GetBounds(body.position, body.orientation);
+				bounds.Expand(bounds.mins + body.linearVelocity * dt_sec);
+				bounds.Expand(bounds.maxs + body.linearVelocity * dt_sec);
+				const float epsilon = 0.01f;
+				bounds.Expand(bounds.mins + Vec3(-1, -1, -1) * epsilon);
+				bounds.Expand(bounds.maxs + Vec3(1, 1, 1) * epsilon);
+				return bounds;
+				};
+
+			Bounds ba = expandedBounds(a);
+			Bounds bb = expandedBounds(b);
 
 			if (ba.DoesIntersect(bb)) {
-				bodies[a].shape->bounds.collided = true;
-				bodies[b].shape->bounds.collided = true;
+				a.shape->bounds.collided = true;
+				b.shape->bounds.collided = true;
 			}
 		}
 	}
