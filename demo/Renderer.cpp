@@ -273,26 +273,36 @@ void Renderer::Update(ConvertedSceneData& convertedSceneData)
 		sceneObjects[i].Draw();
 
 		//BoundingBox bb{};
-		//bb.max.x = transformBuffer->boundingBoxes[i].maxs.x;
-		//bb.max.y = transformBuffer->boundingBoxes[i].maxs.y;
-		//bb.max.z = transformBuffer->boundingBoxes[i].maxs.z;
+		
+		const BoundingBox bb = convertedSceneData.bbs[i];
 
-		//bb.min.x = transformBuffer->boundingBoxes[i].mins.x;
-		//bb.min.y = transformBuffer->boundingBoxes[i].mins.y;
-		//bb.min.z = transformBuffer->boundingBoxes[i].mins.z;
-
-		//if (transformBuffer->boundingBoxes[i].collided)
-		//{
-		//	DrawBoundingBox(bb, RED);
-		//}
-		//else
-		//{
-		//	DrawBoundingBox(bb, GREEN);
-		//}
+		if (convertedSceneData.bbIndexCollided[i])
+		{
+			
+			DrawBoundingBox(bb, RED);
+		}
+		else
+		{
+			DrawBoundingBox(bb, GREEN);
+		}
 	}
-	//DrawRay(Ray(Vector3{ 0,0,0 }, Vector3{ 1, 0, 0 }), RED);
-	//DrawRay(Ray(Vector3{ 0,0,0 }, Vector3{ 0, 1, 0 }), GREEN);
-	//DrawRay(Ray(Vector3{ 0,0,0 }, Vector3{ 0, 0, 1 }), BLUE);
+
+	for (int i = 0; i < convertedSceneData.bbs.size(); i++)
+	{
+
+		const BoundingBox bb = convertedSceneData.bbs[i];
+
+		if (convertedSceneData.bbIndexCollided[i])
+		{
+
+			DrawBoundingBox(bb, RED);
+		}
+		else
+		{
+			DrawBoundingBox(bb, GREEN);
+		}
+	}
+
 
 	EndMode3D();
 	DrawFPS(10, 10);

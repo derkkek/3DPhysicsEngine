@@ -16,6 +16,7 @@ Program::Program()
 {
 	Init();
 	engine.Init();
+	engine.world.Initialize();
 	renderer.Init();
 	InitScene();
 }
@@ -36,12 +37,12 @@ void Program::Init()
 
 void Program::InitScene()
 {
-	engine.world.Initialize();
-
 	renderer.sceneObjects.reserve(engine.world.bodies.size());
 
 	convertedSceneData.positions.resize(engine.transformBuffer.positions.size());
 	convertedSceneData.orientations.resize(engine.transformBuffer.orientations.size());
+	convertedSceneData.bbs.resize(engine.transformBuffer.positions.size());
+	convertedSceneData.bbIndexCollided.resize(engine.transformBuffer.positions.size());
 
 	for (int i = 0; i < engine.world.bodies.size(); i++) 
 	{
@@ -84,7 +85,7 @@ void Program::Update()
 
 			convertedSceneData.positions[i] = { p.x, p.y, p.z };
 			convertedSceneData.orientations[i] = { q.x, q.y , q.z, q.w };
-			convertedSceneData.bb[i] = { bb };
+			convertedSceneData.bbs[i] = { bb };
 			convertedSceneData.bbIndexCollided[i] = engine.transformBuffer.boundingBoxes[i].collided;
 		}
 

@@ -7,9 +7,16 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
-#include "Program.h"
 
 #define SHADOWMAP_RESOLUTION 2048
+
+struct ConvertedSceneData
+{
+	std::vector<Vector3> positions;
+	std::vector<Quaternion> orientations;
+	std::vector<BoundingBox> bbs;
+	std::vector<bool> bbIndexCollided;
+};
 
 
 class RenderModel

@@ -127,7 +127,7 @@ namespace Cacti
 			float mass = 1 / bodies[i].invMass;
 			Vec3 impulseGravity = Vec3(0.0f, -10, 0.0f) * mass * dt;
 			bodies[i].shape->bounds.collided = false;
-			bodies[i].ApplyImpulse(bodies[i].position, impulseGravity);
+			//bodies[i].ApplyImpulse(bodies[i].position, impulseGravity);
 		}
 
 		// Broadphase
