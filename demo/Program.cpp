@@ -17,7 +17,7 @@ Program::Program()
 	Init();
 	engine.Init();
 	renderer.Init();
-	renderer.SetTransformBuffer(&engine.transformBuffer);
+	//renderer.SetTransformBuffer(&engine.transformBuffer);
 	InitScene();
 }
 
@@ -64,8 +64,21 @@ void Program::Update()
 		{
 			engine.Update(dt);
 		}
+		std::vector<Vector3> positions;
+		std::vector<Quaternion> orientations;
 
-		renderer.Update();  // still render during the wait
+		positions.resize(engine.transformBuffer.positions.size());
+		orientations.resize(engine.transformBuffer.orientations.size());
+
+		for (int i = 0; i < engine.transformBuffer.positions.size(); i++)
+		{
+			const Vec3 p = engine.transformBuffer.positions[i];
+			const Cacti::Quat q = engine.transformBuffer.orientations[i];
+
+			positions[i] = { p.x, p.y, p.z };
+			orientations[i] = { q.x, q.y , q.z, q.w };
+		}
+		renderer.Update(positions, orientations);
 	}
 }
 

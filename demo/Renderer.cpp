@@ -11,7 +11,13 @@
 #include <random> 
 #include <iostream>
 Renderer::Renderer()
-	:cam(),shader(),shadowShader()
+	:cam({
+		.position = Vector3{ 5.0f, 5.0f, 5.0f },
+		.target = Vector3{ 0.0f, 0.0f, 0.0f },
+		.up = Vector3{ 0.0f, 1.0f, 0.0f },
+		.fovy = 45.0f,
+		.projection = CAMERA_PERSPECTIVE
+		}), shader(), shadowShader()
 {
 }
 
@@ -199,14 +205,13 @@ void Renderer::Init()
 }
 
 
-void Renderer::Update()
+void Renderer::Update(std::vector<Vector3>& scene_object_positions, std::vector<Quaternion>& scene_object_orientations)
 {
-	cam.Update();
-	Camera3D camera = cam.ReturnCam();
+	UpdateCamera(&cam, CAMERA_FREE);
 
 	// Update view position uniform
 	SetShaderValue(shadowShader, shadowShader.locs[SHADER_LOC_VECTOR_VIEW],
-		&camera.position, SHADER_UNIFORM_VEC3);
+		&cam.position, SHADER_UNIFORM_VEC3);
 
 	// -------------------------------------------------------
 	// PASS 1: Render depth from light's point of view
@@ -229,10 +234,10 @@ void Renderer::Update()
 	rlSetCullFace(RL_CULL_FACE_FRONT);
 	for (int i = 0; i < sceneObjects.size(); i++)
 	{
-		const Vec3& p = transformBuffer->positions[i];
-		const Cacti::Quat& q = transformBuffer->orientations[i];
-		sceneObjects[i].position = { p.x, p.y, p.z };//Update positions from transform buffer.
-		sceneObjects[i].orientation = {q.x, q.y, q.z, q.w};
+		//const Vec3& p = scene_object_positions[i];
+		//const Cacti::Quat& q = scene_object_orientations[i];
+		sceneObjects[i].position = scene_object_positions[i];//Update positions from transform buffer.
+		sceneObjects[i].orientation = scene_object_orientations[i];
 
 		sceneObjects[i].Draw();
 	}
@@ -257,12 +262,12 @@ void Renderer::Update()
 	rlEnableTexture(shadowMap.depth.id);
 	rlSetUniform(shadowMapLoc, &textureActiveSlot, SHADER_UNIFORM_INT, 1);
 
-	BeginMode3D(camera);
+	BeginMode3D(cam);
 
 	// Skybox
 	rlDisableBackfaceCulling();
 	rlDisableDepthMask();
-	DrawModel(skyboxModel, camera.position, 1.0f, WHITE);
+	DrawModel(skyboxModel, cam.position, 1.0f, WHITE);
 	rlEnableBackfaceCulling();
 	rlEnableDepthMask();
 
@@ -270,23 +275,23 @@ void Renderer::Update()
 	{
 		sceneObjects[i].Draw();
 
-		BoundingBox bb{};
-		bb.max.x = transformBuffer->boundingBoxes[i].maxs.x;
-		bb.max.y = transformBuffer->boundingBoxes[i].maxs.y;
-		bb.max.z = transformBuffer->boundingBoxes[i].maxs.z;
+		//BoundingBox bb{};
+		//bb.max.x = transformBuffer->boundingBoxes[i].maxs.x;
+		//bb.max.y = transformBuffer->boundingBoxes[i].maxs.y;
+		//bb.max.z = transformBuffer->boundingBoxes[i].maxs.z;
 
-		bb.min.x = transformBuffer->boundingBoxes[i].mins.x;
-		bb.min.y = transformBuffer->boundingBoxes[i].mins.y;
-		bb.min.z = transformBuffer->boundingBoxes[i].mins.z;
+		//bb.min.x = transformBuffer->boundingBoxes[i].mins.x;
+		//bb.min.y = transformBuffer->boundingBoxes[i].mins.y;
+		//bb.min.z = transformBuffer->boundingBoxes[i].mins.z;
 
-		if (transformBuffer->boundingBoxes[i].collided)
-		{
-			DrawBoundingBox(bb, RED);
-		}
-		else
-		{
-			DrawBoundingBox(bb, GREEN);
-		}
+		//if (transformBuffer->boundingBoxes[i].collided)
+		//{
+		//	DrawBoundingBox(bb, RED);
+		//}
+		//else
+		//{
+		//	DrawBoundingBox(bb, GREEN);
+		//}
 	}
 	//DrawRay(Ray(Vector3{ 0,0,0 }, Vector3{ 1, 0, 0 }), RED);
 	//DrawRay(Ray(Vector3{ 0,0,0 }, Vector3{ 0, 1, 0 }), GREEN);
