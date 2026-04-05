@@ -15,13 +15,11 @@ namespace Cacti
 		std::vector<Vec3> positions;
 		std::vector<Quat> orientations;
 		std::vector<Bounds> boundingBoxes;
-		std::vector<bool> bbCollided;
 		void Resize(int count)
 		{
 			positions.resize(count);
 			orientations.resize(count);
 			boundingBoxes.resize(count);
-			bbCollided.resize(count);
 		}
 
 	private:
