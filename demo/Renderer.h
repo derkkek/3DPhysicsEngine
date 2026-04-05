@@ -33,7 +33,7 @@ public:
 	~Renderer() = default;
 
 	void Init();
-	void Update(std::vector<Vector3>& scene_object_positions, std::vector<Quaternion>& scene_object_orientations, std::vector<BoundingBox>& bounding_boxes);
+	void Update(std::vector<Vector3>& scene_object_positions, std::vector<Quaternion>& scene_object_orientations);
 	void Destroy();
 
 	void AddSceneObject(RenderModel& obj);

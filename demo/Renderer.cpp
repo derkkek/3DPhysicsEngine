@@ -204,7 +204,7 @@ void Renderer::Init()
 }
 
 
-void Renderer::Update(std::vector<Vector3>& scene_object_positions, std::vector<Quaternion>& scene_object_orientations, std::vector<BoundingBox>& bounding_boxes)
+void Renderer::Update(std::vector<Vector3>& scene_object_positions, std::vector<Quaternion>& scene_object_orientations)
 {
 	UpdateCamera(&cam, CAMERA_FREE);
 
