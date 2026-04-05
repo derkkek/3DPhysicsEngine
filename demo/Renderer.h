@@ -25,13 +25,9 @@ public:
 	Model model;
 	Color color;
 
-	Vector3 position;
-	Quaternion orientation;
-
-
 	RenderModel() = default;
 	RenderModel(Model& model, Color color, Vector3 pos);
-	void Draw();
+	void Draw(const Vector3 pos, const Quaternion& orient);
 };
 
 

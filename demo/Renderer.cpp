@@ -233,10 +233,7 @@ void Renderer::Update(ConvertedSceneData& convertedSceneData)
 	rlSetCullFace(RL_CULL_FACE_FRONT);
 	for (int i = 0; i < sceneObjects.size(); i++)
 	{
-		sceneObjects[i].position = convertedSceneData.positions[i];//Update positions from transform buffer.
-		sceneObjects[i].orientation = convertedSceneData.orientations[i];
-
-		sceneObjects[i].Draw();
+		sceneObjects[i].Draw(convertedSceneData.positions[i], convertedSceneData.orientations[i]);
 	}
 	rlSetCullFace(RL_CULL_FACE_BACK);   // restore
 
@@ -270,7 +267,7 @@ void Renderer::Update(ConvertedSceneData& convertedSceneData)
 
 	for (int i = 0; i < sceneObjects.size(); i++)
 	{
-		sceneObjects[i].Draw();
+		sceneObjects[i].Draw(convertedSceneData.positions[i], convertedSceneData.orientations[i]);
 
 		//BoundingBox bb{};
 		
@@ -287,20 +284,6 @@ void Renderer::Update(ConvertedSceneData& convertedSceneData)
 		}
 	}
 
-	for (int i = 0; i < convertedSceneData.bbs.size(); i++)
-	{
-
-		const BoundingBox bb = convertedSceneData.bbs[i];
-
-		if (convertedSceneData.bbIndexCollided[i])
-		{
-			DrawBoundingBox(bb, RED);
-		}
-		else
-		{
-			DrawBoundingBox(bb, GREEN);
-		}
-	}
 
 
 	EndMode3D();
@@ -327,20 +310,20 @@ void Renderer::AddSceneObject(RenderModel& obj)
 }
 
 RenderModel::RenderModel(Model& model, Color color, Vector3 pos)
-	:model(model), color(color), position(pos)
+	:model(model), color(color)
 {
 
 }
 
-void RenderModel::Draw()
+void RenderModel::Draw(const Vector3 pos, const Quaternion& orient)
 {
 	Vector3 axis;
 	float angle;
  	//orientation.ToAxisAngle(axis, angle);
-	QuaternionToAxisAngle(orientation, &axis, &angle);
+	QuaternionToAxisAngle(orient, &axis, &angle);
 	float angleDeg = angle * RAD2DEG;
 	Vector3 raylibAxis = { axis.x, axis.y, axis.z };
 
-	DrawModelEx(this->model, this->position, raylibAxis, angleDeg, Vector3One(), this->color);
+	DrawModelEx(this->model, pos, raylibAxis, angleDeg, Vector3One(), this->color);
 }
 

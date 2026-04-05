@@ -10,6 +10,7 @@
 #include "raymath.h"
 #include <random>
 
+using namespace Cacti;
 
 Program::Program()
 	:running(true), engine(), convertedSceneData{}
@@ -115,9 +116,6 @@ RenderModel Program::BuildRenderModelFromPhysicsGeometry(Cacti::Body body, Cacti
 	static std::mt19937 gen(rd());
 	static std::uniform_int_distribution<size_t> dist(0, colorCount - 1);
 
-
-
-
 	if (shape->GetType() == Cacti::Shape::ShapeType::SPHERE)
 	{
 		Cacti::Sphere* sphereShape = (Cacti::Sphere*)shape;
@@ -125,7 +123,6 @@ RenderModel Program::BuildRenderModelFromPhysicsGeometry(Cacti::Body body, Cacti
 		Vector3 raylibPos = { body.position.x, body.position.y, body.position.z };
 		Color randomColor = colorList[dist(gen)];
 		RenderModel sphereObj{ sphere, randomColor, raylibPos };
-
 
 		return sphereObj;
 	}
@@ -244,8 +241,6 @@ RenderModel Program::BuildRenderModelFromPhysicsGeometry(Cacti::Body body, Cacti
 			{ {1,3,7,5}, Vec3(1, 0, 0) }, // right  +
 			{ {0,4,6,2}, Vec3(-1, 0, 0) }, // left   -X
 		};
-
-
 
 		for (int f = 0; f < 6; f++)
 		{
