@@ -12,7 +12,7 @@
 
 
 Program::Program()
-	:running(true), engine()
+	:running(true), engine(), convertedSceneData{}
 {
 	Init();
 	engine.Init();
@@ -40,6 +40,9 @@ void Program::InitScene()
 
 	renderer.sceneObjects.reserve(engine.world.bodies.size());
 
+	convertedSceneData.positions.resize(engine.transformBuffer.positions.size());
+	convertedSceneData.orientations.resize(engine.transformBuffer.orientations.size());
+
 	for (int i = 0; i < engine.world.bodies.size(); i++) 
 	{
 		RenderModel sceneObject = BuildRenderModelFromPhysicsGeometry(engine.world.bodies[i], engine.world.bodies[i].shape);
@@ -62,21 +65,30 @@ void Program::Update()
 		{
 			engine.Update(dt);
 		}
-		std::vector<Vector3> positions;
-		std::vector<Quaternion> orientations;
-
-		positions.resize(engine.transformBuffer.positions.size());
-		orientations.resize(engine.transformBuffer.orientations.size());
 
 		for (int i = 0; i < engine.transformBuffer.positions.size(); i++)
 		{
 			const Vec3 p = engine.transformBuffer.positions[i];
 			const Cacti::Quat q = engine.transformBuffer.orientations[i];
+			const Cacti::Bounds boundingBox = engine.transformBuffer.boundingBoxes[i];
 
-			positions[i] = { p.x, p.y, p.z };
-			orientations[i] = { q.x, q.y , q.z, q.w };
+			BoundingBox bb{};
+
+			bb.max.x = engine.transformBuffer.boundingBoxes[i].maxs.x;
+			bb.max.y = engine.transformBuffer.boundingBoxes[i].maxs.y;
+			bb.max.z = engine.transformBuffer.boundingBoxes[i].maxs.z;
+
+			bb.min.x = engine.transformBuffer.boundingBoxes[i].mins.x;
+			bb.min.y = engine.transformBuffer.boundingBoxes[i].mins.y;
+			bb.min.z = engine.transformBuffer.boundingBoxes[i].mins.z;
+
+			convertedSceneData.positions[i] = { p.x, p.y, p.z };
+			convertedSceneData.orientations[i] = { q.x, q.y , q.z, q.w };
+			convertedSceneData.bb[i] = { bb };
+			convertedSceneData.bbIndexCollided[i] = engine.transformBuffer.boundingBoxes[i].collided;
 		}
-		renderer.Update(positions, orientations);
+
+		renderer.Update(convertedSceneData);
 	}
 }
 

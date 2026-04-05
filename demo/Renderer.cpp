@@ -204,7 +204,7 @@ void Renderer::Init()
 }
 
 
-void Renderer::Update(std::vector<Vector3>& scene_object_positions, std::vector<Quaternion>& scene_object_orientations)
+void Renderer::Update(ConvertedSceneData& convertedSceneData)
 {
 	UpdateCamera(&cam, CAMERA_FREE);
 
@@ -233,8 +233,8 @@ void Renderer::Update(std::vector<Vector3>& scene_object_positions, std::vector<
 	rlSetCullFace(RL_CULL_FACE_FRONT);
 	for (int i = 0; i < sceneObjects.size(); i++)
 	{
-		sceneObjects[i].position = scene_object_positions[i];//Update positions from transform buffer.
-		sceneObjects[i].orientation = scene_object_orientations[i];
+		sceneObjects[i].position = convertedSceneData.positions[i];//Update positions from transform buffer.
+		sceneObjects[i].orientation = convertedSceneData.orientations[i];
 
 		sceneObjects[i].Draw();
 	}

@@ -7,6 +7,14 @@
 #include "Renderer.h"
 #include <Engine.h>
 
+struct ConvertedSceneData
+{
+	std::vector<Vector3> positions;
+	std::vector<Quaternion> orientations;
+	std::vector<BoundingBox> bb;
+	std::vector<bool> bbIndexCollided;
+};
+
 class Program
 {
 public:
@@ -24,4 +32,5 @@ private:
 	Cacti::Engine engine;
 	bool running;
 
+	ConvertedSceneData convertedSceneData;
 };

@@ -7,8 +7,10 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
+#include "Program.h"
 
 #define SHADOWMAP_RESOLUTION 2048
+
 
 class RenderModel
 {
@@ -33,7 +35,7 @@ public:
 	~Renderer() = default;
 
 	void Init();
-	void Update(std::vector<Vector3>& scene_object_positions, std::vector<Quaternion>& scene_object_orientations);
+	void Update(ConvertedSceneData& convertedSceneData);
 	void Destroy();
 
 	void AddSceneObject(RenderModel& obj);
